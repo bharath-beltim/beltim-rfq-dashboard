@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joby Aviation — Beltim RFQ Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f5f6f8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #111827;
+  --text2: #4b5563;
+  --text3: #9ca3af;
+  --accent: #1d6fdb;
+  --accent2: #1558b0;
+  --green: #059669;
+  --amber: #d97706;
+  --red: #dc2626;
+  --purple: #6d3fc9;
+  --teal: #0d9488;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; line-height: 1.6; }
+
+/* Layout */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.logo .proj { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.logo .name { font-size: 15px; font-weight: 500; color: var(--text); }
+.logo .sub { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.nav-section { padding: 0 12px 20px; }
+.nav-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; padding: 0 8px; margin-bottom: 6px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text2); transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+.nav-item.active { background: rgba(29,111,219,0.08); color: var(--accent); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.nav-count { margin-left: auto; font-family: var(--mono); font-size: 10px; background: var(--surface2); padding: 1px 6px; border-radius: 10px; }
+
+/* Main content */
+.main { padding: 28px 32px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* Top bar */
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.topbar h1 { font-size: 20px; font-weight: 500; }
+.topbar .sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.badge { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 4px; letter-spacing: 0.04em; }
+.badge.blue { background: rgba(29,111,219,0.08); color: var(--accent); border: 1px solid rgba(29,111,219,0.20); }
+.badge.amber { background: rgba(217,119,6,0.10); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+.badge.green { background: rgba(5,150,105,0.10); color: var(--green); border: 1px solid rgba(5,150,105,0.18); }
+.badge.red { background: rgba(220,38,38,0.07); color: var(--red); border: 1px solid rgba(240,80,80,0.25); }
+
+/* Metrics row */
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.metric .lbl { font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.05em; margin-bottom: 8px; }
+.metric .val { font-size: 28px; font-weight: 500; font-family: var(--mono); }
+.metric .val.green { color: var(--green); }
+.metric .val.amber { color: var(--amber); }
+.metric .val.red { color: var(--red); }
+.metric .val.blue { color: var(--accent); }
+
+/* Alert box */
+.alert { background: rgba(245,166,35,0.07); border: 1px solid rgba(245,166,35,0.2); border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; }
+.alert-hdr { font-size: 12px; font-weight: 500; color: var(--amber); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.alert-hdr::before { content: '!'; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--amber); color: #000; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+.alert-items { display: grid; gap: 4px; }
+.alert-item { font-size: 12px; color: var(--text2); padding-left: 22px; position: relative; line-height: 1.5; }
+.alert-item::before { content: '→'; position: absolute; left: 0; color: var(--amber); font-size: 11px; }
+.alert-item strong { color: var(--text); font-weight: 500; font-family: var(--mono); font-size: 11px; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+.card-hdr { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.card-hdr h3 { font-size: 13px; font-weight: 500; }
+.card-hdr .sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.ctrl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Inputs */
+input[type=text], select {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px;
+  color: var(--text); font-size: 12px; font-family: var(--sans);
+  padding: 6px 10px; outline: none;
+}
+input[type=text]:focus, select:focus { border-color: var(--accent); }
+input[type=text] { width: 200px; }
+
+/* Filter buttons */
+.fbtns { display: flex; gap: 4px; }
+.fbtn { font-size: 11px; font-family: var(--mono); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em; }
+.fbtn:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+.fbtn.active { background: rgba(29,111,219,0.08); color: var(--accent); border-color: rgba(29,111,219,0.25); }
+.fbtn.active-red { background: rgba(220,38,38,0.07); color: var(--red); border-color: rgba(220,38,38,0.3); }
+.fbtn.active-amber { background: rgba(217,119,6,0.10); color: var(--amber); border-color: rgba(217,119,6,0.3); }
+.fbtn.active-green { background: rgba(5,150,105,0.10); color: var(--green); border-color: rgba(5,150,105,0.3); }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { padding: 8px 12px; text-align: left; font-size: 10px; font-family: var(--mono); color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(0,0,0,0.03); }
+
+/* PN style */
+.pn { font-family: var(--mono); font-size: 11px; color: var(--accent); white-space: nowrap; }
+
+/* Pills */
+.pill { display: inline-block; font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+.p-green { background: rgba(5,150,105,0.08); color: var(--green); }
+.p-amber { background: rgba(217,119,6,0.08); color: var(--amber); }
+.p-red { background: rgba(240,80,80,0.1); color: var(--red); }
+.p-blue { background: rgba(29,111,219,0.08); color: var(--accent); }
+.p-gray { background: rgba(0,0,0,0.06); color: var(--text2); }
+.p-purple { background: rgba(109,63,201,0.08); color: var(--purple); }
+
+/* Email timeline */
+.timeline { padding: 0; }
+.tl-item { display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--border); align-items: start; }
+.tl-item:last-child { border-bottom: none; }
+.tl-date { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+.tl-vendor { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.tl-email { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-bottom: 6px; }
+.tl-parts { font-size: 11px; color: var(--text2); line-height: 1.7; }
+.tl-parts .pns { font-family: var(--mono); color: var(--text); font-size: 10px; background: var(--surface2); padding: 6px 10px; border-radius: 6px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.tl-parts .pns .pn-tag { background: var(--surface); border: 1px solid var(--border2); padding: 1px 6px; border-radius: 3px; font-size: 10px; color: var(--accent); }
+.tl-note { font-size: 11px; color: var(--amber); margin-top: 4px; }
+
+/* BOM tree */
+.bom-row { display: grid; grid-template-columns: 120px 1fr 100px 120px; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--border); align-items: center; font-size: 11px; }
+.bom-row:last-child { border-bottom: none; }
+.bom-row.asm-header { background: rgba(0,0,0,0.03); }
+.bom-row.top-asm { background: rgba(29,111,219,0.04); }
+
+/* Vendor cards */
+.vendor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; }
+.vendor-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px; background: var(--surface2); }
+.vendor-card.active-v { border-color: rgba(29,111,219,0.25); }
+.vc-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.vc-email { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 10px; }
+.vc-stat { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); padding: 3px 0; border-bottom: 1px solid var(--border); }
+.vc-stat:last-child { border-bottom: none; }
+.vc-stat span:last-child { font-weight: 500; color: var(--text); }
+
+/* Action row */
+.action-row { padding: 10px 16px; background: rgba(0,0,0,0.03); border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+.act-btn { font-size: 11px; font-family: var(--mono); padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.12s; }
+.act-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+
+/* Stats bar at top of page */
+.statbar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.statbar-item { font-size: 11px; font-family: var(--mono); color: var(--text2); display: flex; align-items: center; gap: 5px; }
+.statbar-sep { color: var(--text3); }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* Legend */
+.legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 8px 16px; border-top: 1px solid var(--border); font-size: 10px; font-family: var(--mono); color: var(--text2); align-items: center; }
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.leg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+/* Count badge */
+.cnt { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 10px; background: var(--surface2); color: var(--text2); }
+
+/* Fit-check section in BOM */
+.fit-banner { background: rgba(13,148,136,0.05); border: 1px solid rgba(13,148,136,0.18); border-radius: 6px; padding: 10px 14px; margin: 0 16px 0; font-size: 11px; color: var(--teal); line-height: 1.7; }
+.fit-banner strong { font-weight: 500; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 3px; }
+
+/* Row count display */
+#row-count { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="proj">Joby Aviation / Beltim</div>
+    <div class="name">RFQ Dashboard</div>
+    <div class="sub">Dispenser Assembly Project</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="showPage('overview', this)">
+      <span class="nav-dot" style="background:var(--accent)"></span> Overview
+    </button>
+    <button class="nav-item" onclick="showPage('emails', this)">
+      <span class="nav-dot" style="background:var(--green)"></span> Email RFQs
+      <span class="nav-count">4</span>
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Parts</div>
+    <button class="nav-item" onclick="showPage('parts', this)">
+      <span class="nav-dot" style="background:var(--purple)"></span> All Parts
+      <span class="nav-count">70</span>
+    </button>
+    <button class="nav-item" onclick="showPage('conflicts', this)">
+      <span class="nav-dot" style="background:var(--red)"></span> Price Comparison
+      <span class="nav-count" style="background:rgba(220,38,38,0.08);color:var(--red)">29</span>
+    </button>
+    <button class="nav-item" onclick="showPage('norfq', this)">
+      <span class="nav-dot" style="background:var(--amber)"></span> No RFQ Sent
+      <span class="nav-count" style="background:rgba(217,119,6,0.12);color:var(--amber)">18</span>
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Structure</div>
+    <button class="nav-item" onclick="showPage('bom', this)">
+      <span class="nav-dot" style="background:var(--teal)"></span> BOM Tree
+    </button>
+    <button class="nav-item" onclick="showPage('vendors', this)">
+      <span class="nav-dot" style="background:var(--amber)"></span> Vendor Map
+    </button>
+  </div>
+
+  <div class="nav-section" style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border)">
+    <div style="padding:0 10px;font-size:11px;color:var(--text3)">Last synced<br><span style="color:var(--text2);font-family:var(--mono)">Apr 18, 2026</span></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ======================== OVERVIEW ======================== -->
+<div class="page active" id="page-overview">
+  <div class="topbar">
+    <div>
+      <h1>Project overview</h1>
+      <div class="sub">JCD02 Pit Dispenser GSE · 5–6 shipsets · Beltim acting as Tier 1 integrator</div>
+      <div class="badges">
+        <span class="badge blue">Active RFQ</span>
+        <span class="badge amber">Files Incomplete</span>
+        <span class="badge amber">Vendor Conflicts</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Total parts</div><div class="val blue">70</div></div>
+    <div class="metric"><div class="lbl">On BOM tree</div><div class="val green">69</div></div>
+    <div class="metric"><div class="lbl">No Dec. quote history</div><div class="val amber">17</div></div>
+    <div class="metric"><div class="lbl">Action blockers</div><div class="val red">7</div></div>
+    <div class="metric"><div class="lbl">No RFQ sent yet</div><div class="val amber">18</div></div>
+  </div>
+
+  <div style="background:rgba(29,111,219,0.05);border:1px solid rgba(29,111,219,0.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#374151;line-height:1.7">
+    <strong style="color:#1d6fdb">BOM note:</strong> 69 of 70 parts in the RFQ tracker are confirmed on the engineering BOM tree (from the Beltim Interactive BOM HTML). Only <strong>531244-001</strong> is absent from the BOM — it was added to the tracker Apr 14 as a new part. The "No Dec. quote history" count (17) refers to parts that had no vendor quoted in the December round, not parts missing from the BOM.
+  </div>
+
+  <div class="alert">
+    <div class="alert-hdr">Critical mismatches — action required</div>
+    <div class="alert-items">
+      <div class="alert-item"><strong>518656-002</strong> COVER HVDM — sent to BOTH HiTech (Apr 10) AND ALW (Apr 17). Duplicate assignment must be resolved before POs.</div>
+      <div class="alert-item"><strong>529799-002</strong> CROSS BRACE — sent to BOTH HiTech AND ALW. Same duplicate issue.</div>
+      <div class="alert-item"><strong>531296-001</strong> SEND PUMP ISOLATION PLATE — Vendor_Detail assigns to PNM, but Laura sent to ALW Apr 18. Conflicting vendor.</div>
+      <div class="alert-item"><strong>544669-001 vs -003</strong> — HiTech email used old dash -001. BOM has -003. HiTech may quote the wrong drawing revision.</div>
+      <div class="alert-item"><strong>530007-002, 531153-002, 531157-003, 531170-003, 531191-003</strong> — Vendor_Detail shows "True" (checkbox error) for all 5. No valid vendor. Carlos is former vendor but no RFQ sent.</div>
+      <div class="alert-item"><strong>531244-001</strong> WELDMENT 45 ELBOW — Added Apr 14. Not on BOM, no vendor, PDF only (no STEP). Completely unactioned.</div>
+      <div class="alert-item"><strong>534378-005/-006</strong> LEFT/RIGHT FILLER — Vendor_Detail flags "POP missing sub files." No STEP files, no RFQ email sent.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-hdr"><h3>RFQ email status by vendor</h3></div>
+      <div>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:12px;font-weight:500">HiTech Metal Fab</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">jorge@hitechmetalfab.com</div></div>
+          <div style="text-align:right"><span class="pill p-green">Sent Apr 10</span><div style="font-size:11px;color:var(--text2);margin-top:3px">20 parts</div></div>
+        </div>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:12px;font-weight:500">JF Precision</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">jose@jfprecision.com</div></div>
+          <div style="text-align:right"><span class="pill p-green">Confirmed Apr 17–18</span><div style="font-size:11px;color:var(--text2);margin-top:3px">21+ parts</div></div>
+        </div>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:12px;font-weight:500">Advanced Laser (ALW)</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">rick@adv-laser.com</div></div>
+          <div style="text-align:right"><span class="pill p-amber">Partial</span><div style="font-size:11px;color:var(--text2);margin-top:3px">5+1 parts</div></div>
+        </div>
+        <div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:12px;font-weight:500">POP / 3D Print</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">(internal + external)</div></div>
+          <div style="text-align:right"><span class="pill p-red">No email found</span><div style="font-size:11px;color:var(--text2);margin-top:3px">6 parts</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <h3>File requests — Beltim outstanding (Apr 11)</h3>
+          <div class="sub">Beltim tracks files across their full vendor network — counts are larger than your 70-part RFQ</div>
+        </div>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(29,111,219,0.03)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500">① STEP files needed — your 70 RFQ parts</span>
+          <span class="pill p-amber">71 parts</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">Beltim has received the PDF drawings for these. They still need the 3D STEP model file from Devansh/Brett before they can confirm manufacturing feasibility and complete quoting. 71 ≈ your 70 parts + 1 extra part (531151-001) Beltim found in their records.</div>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(220,38,38,0.02)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500">② PDF + STEP both needed — additional parts not on your RFQ list</span>
+          <span class="pill p-red">77 parts</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">These 77 parts are <strong>separate from your 70</strong>. Beltim found them when they reviewed the BOM tree and the shared file folders — sub-components, child parts, and related PNs they saw referenced but have no drawings for at all. Most are flagged "Not on BOM" in their sheet, meaning they don't know if you need them quoted or not. Examples: 511863-002, 529853-003, 531141-002, 548348-002, 548349-002 (the 3D printed children of 545227-003), etc.</div>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500">③ PDF only needed — 531641 series</span>
+          <span class="pill p-amber">6 parts</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">531641-001 through -006 — dash variants of a stem part. Devansh noted in the Apr 14 email that 531641-001 through -004 are <strong>being replaced by -005 and -006</strong> and may not be needed. But Beltim still needs the PDFs to confirm scope.</div>
+      </div>
+      <div style="padding:10px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500">④ Assemblies — confirm whether files needed</span>
+          <span class="pill p-blue">24 parts</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">These are the parent assembly and module PNs from the BOM tree (e.g. 527649-003 top-level dispenser, 529978-002 deck module, 545087-001 send pump assembly). Beltim is asking: do you want them to quote these as complete assemblies, or just the individual child parts? Answer needed to scope the work correctly.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><h3>Key project timeline</h3></div>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="border-left:2px solid var(--accent);padding-left:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">Mar 20</div>
+        <div style="font-size:12px;font-weight:500;margin-top:3px">Estimate 3471</div>
+        <div style="font-size:11px;color:var(--text2)">Initial Beltim quote $9,155 → retracted. Updated to $10,074 (+10%)</div>
+      </div>
+      <div style="border-left:2px solid var(--green);padding-left:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">Apr 9–10</div>
+        <div style="font-size:12px;font-weight:500;margin-top:3px">Factory visit</div>
+        <div style="font-size:11px;color:var(--text2)">Devansh + Brett visited Beltim Santa Clara. Full BOM review, quality issues documented.</div>
+      </div>
+      <div style="border-left:2px solid var(--purple);padding-left:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">Apr 10–18</div>
+        <div style="font-size:12px;font-weight:500;margin-top:3px">Files + RFQs out</div>
+        <div style="font-size:11px;color:var(--text2)">Brett sent 3D/2D files. Laura sent RFQs to HiTech, JF, ALW. Beltim sorting vendor packets.</div>
+      </div>
+      <div style="border-left:2px solid var(--amber);padding-left:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">NOW</div>
+        <div style="font-size:12px;font-weight:500;margin-top:3px">178+ files pending</div>
+        <div style="font-size:11px;color:var(--text2)">Outstanding file requests doc sent Apr 11. Awaiting STEP files for majority of parts.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== EMAILS ======================== -->
+<div class="page" id="page-emails">
+  <div class="topbar">
+    <div><h1>RFQ email log</h1><div class="sub">All outbound RFQ emails sent by Laura / Beltim team for Joby parts</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><h3>Outbound RFQs — Joby project specific</h3><span class="cnt">4 vendors contacted</span></div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">Apr 10, 2026</div>
+          <div style="margin-top:4px"><span class="pill p-green">Sent</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">HiTech Metal Fab (Jorge + Ricardo)</div>
+          <div class="tl-email">Jorgef@hitechmetalfab.com · ricardos@hitechmetalfab.com</div>
+          <div class="tl-parts">
+            20 parts assigned as HT in Vendor_Detail. Laura forwarded Meliza's original RFQ with added notes:
+            <div class="pns">
+              <span class="pn-tag">518643-002</span><span class="pn-tag">518656-002</span><span class="pn-tag">521560-002</span>
+              <span class="pn-tag">528356-002</span><span class="pn-tag">529320-002</span><span class="pn-tag">529797-001</span>
+              <span class="pn-tag">529799-002</span><span class="pn-tag">529856-002</span><span class="pn-tag">529931-001</span>
+              <span class="pn-tag">529933-001</span><span class="pn-tag">529981-003</span><span class="pn-tag">530049-002</span>
+              <span class="pn-tag">530484-001</span><span class="pn-tag">531306-001</span><span class="pn-tag">531723-002</span>
+              <span class="pn-tag">531727-003</span><span class="pn-tag">531798-001</span><span class="pn-tag">534117-001</span>
+              <span class="pn-tag">534501-001</span><span class="pn-tag">544669-001</span>
+            </div>
+          </div>
+          <div class="tl-note">⚠ 518643-002: material on drawing is G90 but G60 deviation confirmed — resend updated drawing · 529320-002: HT never quoted before, tolerance deviation pending Brett · 544669-001: WRONG REV sent — BOM requires -003, must correct before quoting</div>
+        </div>
+        <div><span class="pill p-amber">3 flags</span></div>
+      </div>
+
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">Apr 17, 2026</div>
+          <div style="margin-top:4px"><span class="pill p-green">Quote request confirmed</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">JF Precision (Jose Fernandez)</div>
+          <div class="tl-email">jose@jfprecision.com · office.jf@jfprecision.com</div>
+          <div class="tl-parts">
+            JF-assigned parts from Vendor_Detail. Response received same day: "RFQ received, will review."
+            <div class="pns">
+              <span class="pn-tag">514086-001</span><span class="pn-tag">518651-002</span><span class="pn-tag">518789-002</span>
+              <span class="pn-tag">518790-002</span><span class="pn-tag">521561-002</span><span class="pn-tag">529736-001</span>
+              <span class="pn-tag">529980-002</span><span class="pn-tag">530052-001</span><span class="pn-tag">530058-001</span>
+              <span class="pn-tag">530150-001</span><span class="pn-tag">530152-001</span><span class="pn-tag">530194-001</span>
+              <span class="pn-tag">530708-002</span><span class="pn-tag">531296-001</span><span class="pn-tag">531648-001</span>
+              <span class="pn-tag">531819-001</span><span class="pn-tag">532724-001</span><span class="pn-tag">532840-001</span>
+              <span class="pn-tag">533050-001</span><span class="pn-tag">533083-001</span><span class="pn-tag">533209-001</span>
+            </div>
+          </div>
+          <div class="tl-note">⚠ 531296-001 also sent to ALW Apr 18 — conflicting vendor. 518651-002: Vendor_Detail has "HT?" note.</div>
+        </div>
+        <div><span class="pill p-amber">2 flags</span></div>
+      </div>
+
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">Apr 17–18, 2026</div>
+          <div style="margin-top:4px"><span class="pill p-amber">Partial</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">Advanced Laser (Rick)</div>
+          <div class="tl-email">rick@adv-laser.com</div>
+          <div class="tl-parts">
+            5 parts on Apr 17, then 1 added Apr 18:
+            <div class="pns">
+              <span class="pn-tag">514100-003</span><span class="pn-tag">518656-002</span><span class="pn-tag">529799-002</span>
+              <span class="pn-tag">530113-001</span><span class="pn-tag">549775-001</span>
+              <span class="pn-tag" style="border-color:var(--amber);color:var(--amber)">531296-001 (added Apr 18)</span>
+            </div>
+          </div>
+          <div class="tl-note">✓ 518656-002 and 529799-002 also quoted by HiTech — good, competitive sourcing. 531296-001 also quoted by JF — good, competitive sourcing. See Price Comparison tab to track results.</div>
+        </div>
+        <div><span class="pill p-red">3 duplicates</span></div>
+      </div>
+
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">Not sent yet</div>
+          <div style="margin-top:4px"><span class="pill p-red">Missing</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">POP / 3D Print Vendor</div>
+          <div class="tl-email">Vendor_Detail assigns these to POP — no email found</div>
+          <div class="tl-parts">
+            6 parts need RFQ to 3D print vendor:
+            <div class="pns">
+              <span class="pn-tag" style="color:var(--red)">532902-001</span>
+              <span class="pn-tag" style="color:var(--red)">545227-003</span>
+              <span class="pn-tag" style="color:var(--red)">534378-005</span>
+              <span class="pn-tag" style="color:var(--red)">534378-006</span>
+              <span class="pn-tag" style="color:var(--red)">551064-001</span>
+              <span class="pn-tag" style="color:var(--red)">518789-002</span>
+            </div>
+          </div>
+          <div class="tl-note">⚠ 534378-005 and -006 flagged "POP missing sub files" in Vendor_Detail. 545227-003 = assembly of 548348-002 + 548349-002 (3D printed). Files sent by Brett Apr 17 but no external RFQ yet.</div>
+        </div>
+        <div><span class="pill p-red">Action needed</span></div>
+      </div>
+
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">Not sent yet</div>
+          <div style="margin-top:4px"><span class="pill p-red">Missing</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">Carlos Weld / CARLOS vendor</div>
+          <div class="tl-email">Former vendor for manifold weldments — no new RFQ found</div>
+          <div class="tl-parts">
+            5 manifold weldment assemblies — formerly made by "CARLOS":
+            <div class="pns">
+              <span class="pn-tag" style="color:var(--red)">531146-003</span><span class="pn-tag" style="color:var(--red)">531153-002</span>
+              <span class="pn-tag" style="color:var(--red)">531157-003</span><span class="pn-tag" style="color:var(--red)">531170-003</span>
+              <span class="pn-tag" style="color:var(--red)">531191-003</span>
+            </div>
+          </div>
+          <div class="tl-note">⚠ Vendor_Detail shows "True" (checkbox error) — not a real vendor code. No valid vendor assigned. These are all Bonded/Fastened welded assemblies. Need RFQ to Carlos or alternate.</div>
+        </div>
+        <div><span class="pill p-red">Data error + no RFQ</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================== ALL PARTS ======================== -->
+<div class="page" id="page-parts">
+  <div class="topbar">
+    <div><h1>All parts</h1><div class="sub">70 parts in RFQ tracker · cross-referenced with BOM, Vendor_Detail, and email threads</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr">
+      <h3>Parts master list</h3>
+      <div class="ctrl">
+        <input type="text" id="parts-search" placeholder="Search PN or description..." oninput="filterParts()">
+        <div class="fbtns">
+          <button class="fbtn active" onclick="setPartsFilter('all',this)">All <span id="row-count"></span></button>
+          <button class="fbtn" onclick="setPartsFilter('ok',this)">OK</button>
+          <button class="fbtn" onclick="setPartsFilter('conflict',this)">Conflict</button>
+          <button class="fbtn" onclick="setPartsFilter('norFQ',this)">No RFQ</button>
+          <button class="fbtn" onclick="setPartsFilter('assembly',this)">Assembly</button>
+          <button class="fbtn" onclick="setPartsFilter('3dp',this)">3D Print</button>
+        </div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="parts-table">
+        <thead><tr>
+          <th>Part no.</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Qty ×10</th>
+          <th>Dec vendor</th>
+          <th>RFQ sent to</th>
+          <th>BOM</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr></thead>
+        <tbody id="parts-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PRICE COMPARISON ======================== -->
+<div class="page" id="page-conflicts">
+  <div class="topbar">
+    <div>
+      <h1>Vendor price comparison</h1>
+      <div class="sub">All parts sent to multiple vendors for quote · compare pricing as responses arrive · lowest price auto-highlighted</div>
+      <div class="badges" style="margin-top:6px">
+        <span class="badge amber">Quotes pending — no pricing received yet</span>
+        <span class="badge blue">Enter prices as vendors respond to highlight winner</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+    <div class="metric"><div class="lbl">Parts in comparison</div><div class="val blue">70</div></div>
+    <div class="metric"><div class="lbl">Quotes received</div><div class="val red">0</div></div>
+    <div class="metric"><div class="lbl">Quotes pending</div><div class="val amber">4 vendors</div></div>
+    <div class="metric"><div class="lbl">Winners selected</div><div class="val red">0</div></div>
+  </div>
+
+  <div style="background:rgba(29,111,219,0.04);border:1px solid rgba(29,111,219,0.18);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--text2);line-height:1.7">
+    <span style="color:var(--accent);font-weight:500">How this works:</span>
+    Each row shows all vendors a part was sent to, their email status, and a price input field. As vendors reply with quotes, enter the unit price — the lowest price cell turns green and the row marks a winner automatically. The table also flags revision issues and notes where the same part went to different vendor types (e.g. sheet metal vs. laser cutting) so you can compare apples-to-apples.
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <h3>Parts sent to 2+ vendors — live price comparison</h3>
+        <div class="sub">All vendors contacted per part · email status · enter unit price when quote arrives</div>
+      </div>
+      <div class="ctrl">
+        <div class="fbtns">
+          <button class="fbtn active" id="cf-all" onclick="setCFilter('all',this)">All parts</button>
+          <button class="fbtn" id="cf-multi" onclick="setCFilter('multi',this)">Multi-vendor only</button>
+          <button class="fbtn" id="cf-flag" onclick="setCFilter('flag',this)">Has action item</button>
+          <button class="fbtn" id="cf-winner" onclick="setCFilter('winner',this)">Winner selected</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table id="compare-table" style="min-width:900px">
+        <thead>
+          <tr>
+            <th style="width:100px">Part no.</th>
+            <th style="width:160px">Description</th>
+            <th style="width:55px">Qty</th>
+            <th style="width:55px">Type</th>
+            <th colspan="2" style="text-align:center;background:rgba(29,111,219,0.07);color:#1558b0;border-left:1px solid rgba(29,111,219,0.12)">HiTech Metal Fab</th>
+            <th colspan="2" style="text-align:center;background:rgba(5,150,105,0.07);color:#047857;border-left:1px solid rgba(5,150,105,0.12)">JF Precision</th>
+            <th colspan="2" style="text-align:center;background:rgba(217,119,6,0.07);color:#92400e;border-left:1px solid rgba(245,166,35,0.2)">Adv. Laser (ALW)</th>
+            <th colspan="2" style="text-align:center;background:rgba(109,63,201,0.07);color:#5b21b6;border-left:1px solid rgba(109,63,201,0.12)">PNM</th>
+            <th style="width:70px">Winner</th>
+            <th>Flags</th>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th></th><th></th><th></th><th></th>
+            <th style="background:rgba(29,111,219,0.07);border-left:1px solid rgba(29,111,219,0.10);font-size:10px">Status</th>
+            <th style="background:rgba(29,111,219,0.07);font-size:10px">Unit $</th>
+            <th style="background:rgba(5,150,105,0.06);border-left:1px solid rgba(5,150,105,0.10);font-size:10px">Status</th>
+            <th style="background:rgba(5,150,105,0.06);font-size:10px">Unit $</th>
+            <th style="background:rgba(217,119,6,0.06);border-left:1px solid rgba(217,119,6,0.12);font-size:10px">Status</th>
+            <th style="background:rgba(217,119,6,0.06);font-size:10px">Unit $</th>
+            <th style="background:rgba(109,63,201,0.06);border-left:1px solid rgba(109,63,201,0.10);font-size:10px">Status</th>
+            <th style="background:rgba(109,63,201,0.06);font-size:10px">Unit $</th>
+            <th></th><th></th>
+          </tr>
+        </thead>
+        <tbody id="compare-tbody"></tbody>
+      </table>
+    </div>
+
+    <div style="padding:10px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(5,150,105,0.18);border:1px solid var(--green);border-radius:2px;display:inline-block"></span> Lowest price (winner)</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(220,38,38,0.08);border:1px solid var(--red);border-radius:2px;display:inline-block"></span> Highest price</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(0,0,0,0.04);border:1px solid var(--border2);border-radius:2px;display:inline-block"></span> Not sent to this vendor</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="font-family:var(--mono);font-size:10px;color:var(--amber)">⚠</span> Flag / note requires attention</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><h3>Email status per vendor — Joby RFQ threads</h3></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0">
+      <div style="padding:14px 16px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px">HiTech Metal Fab</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">Jorgef@hitechmetalfab.com · ricardos@hitechmetalfab.com</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8">
+          RFQ sent by Laura <span style="color:var(--text);font-family:var(--mono)">Apr 10, 2026</span><br>
+          Subject: <span style="color:var(--text);font-family:var(--mono)">Fwd: RFQ: New Quote - Joby</span><br>
+          Last activity: <span style="color:var(--amber)">Apr 10 — sent only, no reply in thread</span><br>
+          Parts sent: <span style="color:var(--text)">20 parts</span><br>
+          Quote received: <span style="color:var(--red);font-weight:500">No</span>
+        </div>
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px">JF Precision</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">jose@jfprecision.com · office.jf@jfprecision.com</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8">
+          RFQ sent by Laura <span style="color:var(--text);font-family:var(--mono)">Apr 17, 2026</span><br>
+          Subject: <span style="color:var(--text);font-family:var(--mono)">RFQ - Joby Parts</span><br>
+          Last activity: <span style="color:var(--amber)">Apr 18 — Jose confirmed "Got it, will work on it"</span><br>
+          Parts sent: <span style="color:var(--text)">21 parts</span><br>
+          Quote received: <span style="color:var(--red);font-weight:500">No</span>
+        </div>
+      </div>
+      <div style="padding:14px 16px;border-right:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px">Advanced Laser (ALW / Rick)</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">rick@adv-laser.com</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8">
+          RFQ sent by Laura <span style="color:var(--text);font-family:var(--mono)">Apr 17, 2026</span> (5 parts)<br>
+          Follow-up: <span style="color:var(--text);font-family:var(--mono)">Apr 18</span> (531296-001 added)<br>
+          Subject: <span style="color:var(--text);font-family:var(--mono)">RFQ - Joby</span><br>
+          Last activity: <span style="color:var(--red)">Apr 18 — no reply from Rick</span><br>
+          Quote received: <span style="color:var(--red);font-weight:500">No</span>
+        </div>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px">PNM (pending)</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">Assigned in Vendor_Detail as backup for several parts</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8">
+          RFQ sent: <span style="color:var(--red)">No email found to PNM for Joby parts</span><br>
+          Parts where PNM is vendor 2 or 3: 529736-001, 531296-001, 531648-001, 521561-002, 514086-001<br>
+          Quote received: <span style="color:var(--red);font-weight:500">No</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><h3>Drawing / revision flags — resolve before quotes are valid</h3></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Part no.</th><th>Description</th><th>Issue</th><th>Vendor affected</th><th>Action needed</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="pn">544669-003</span></td>
+            <td style="font-size:11px">NAMEPLATE, JCD02, GSE</td>
+            <td><span class="pill p-red">Rev mismatch</span></td>
+            <td style="font-size:11px">HiTech (was sent -001)</td>
+            <td style="font-size:11px;color:var(--red)">Resend correct -003 drawing to HiTech. Any quote on -001 is invalid.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">518643-002</span></td>
+            <td style="font-size:11px">CHASSIS, HVDM</td>
+            <td><span class="pill p-amber">Material deviation</span></td>
+            <td style="font-size:11px">HiTech</td>
+            <td style="font-size:11px;color:var(--amber)">Send updated drawing noting G60 (not G90) per Brett's Apr 17 confirmation. Quote must be against G60 material.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">529320-002</span></td>
+            <td style="font-size:11px">UNIFIED FRAME, JCD02</td>
+            <td><span class="pill p-amber">Tolerance deviation</span></td>
+            <td style="font-size:11px">HiTech</td>
+            <td style="font-size:11px;color:var(--amber)">Brett to confirm tolerance relaxation quantities before HiTech can quote. Quote is blocked.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">545227-003</span></td>
+            <td style="font-size:11px">ELECTRONICS COVER, DOCK ASSY</td>
+            <td><span class="pill p-amber">Assembly scope unclear</span></td>
+            <td style="font-size:11px">POP (3D)</td>
+            <td style="font-size:11px;color:var(--amber)">Confirm: quote as full assembly (548348-002 + 548349-002) or individual 3D printed parts? Vendor_Detail note: "Is this 548348-002?"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== NO RFQ ======================== -->
+<div class="page" id="page-norfq">
+  <div class="topbar">
+    <div><h1>No RFQ sent yet</h1><div class="sub">Parts with a vendor assigned in Vendor_Detail but no outbound email found</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>Parts requiring immediate RFQ action</h3></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Part no.</th><th>Description</th><th>Assigned vendor</th><th>File status</th><th>Blocker</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pn">530077-004</span></td><td style="font-size:11px">HINGE WELDMENT, JCD</td><td style="font-size:11px">Altamont</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No RFQ email to Altamont found</td></tr>
+          <tr><td><span class="pn">530117-002</span></td><td style="font-size:11px">FIXED ARM ASSY, HATCH, JCD</td><td style="font-size:11px">HT / DP</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No external RFQ email found</td></tr>
+          <tr><td><span class="pn">531146-003</span></td><td style="font-size:11px">WELDMENT, MANIFOLD, SEND PUMP INPUT</td><td style="font-size:11px">DP / Carlos</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No RFQ to DP or Carlos</td></tr>
+          <tr><td><span class="pn">532902-001</span></td><td style="font-size:11px">GUIDE CONE W/ INSERTS, JCD, GSE</td><td style="font-size:11px">POP (3D)</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No 3D print RFQ email</td></tr>
+          <tr><td><span class="pn">534378-005</span></td><td style="font-size:11px">LEFT FILLER W/ INSERTS, RISER</td><td style="font-size:11px">POP (3D)</td><td><span class="pill p-red">Missing sub files</span></td><td style="font-size:11px">Files missing + no RFQ</td></tr>
+          <tr><td><span class="pn">534378-006</span></td><td style="font-size:11px">RIGHT FILLER W/ INSERTS, RISER</td><td style="font-size:11px">POP (3D)</td><td><span class="pill p-red">Missing sub files</span></td><td style="font-size:11px">Files missing + no RFQ</td></tr>
+          <tr><td><span class="pn">545202-002</span></td><td style="font-size:11px">DOCK COVER, TEMPORARY MOCKUP, JCD</td><td style="font-size:11px">POP</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No RFQ email found</td></tr>
+          <tr><td><span class="pn">545227-003</span></td><td style="font-size:11px">ELECTRONICS COVER, DOCK ASSY (3D)</td><td style="font-size:11px">POP</td><td><span class="pill p-green">Files sent Apr 17</span></td><td style="font-size:11px">Files received; RFQ not yet sent</td></tr>
+          <tr><td><span class="pn">546884-001</span></td><td style="font-size:11px">RISER GUIDE, LEFT, JCD</td><td style="font-size:11px">HT</td><td><span class="pill p-green">STEP sent Apr 14</span></td><td style="font-size:11px">New PN — no RFQ email found</td></tr>
+          <tr><td><span class="pn">546884-002</span></td><td style="font-size:11px">RISER GUIDE, RIGHT, JCD</td><td style="font-size:11px">HT</td><td><span class="pill p-green">STEP sent Apr 14</span></td><td style="font-size:11px">New PN — no RFQ email found</td></tr>
+          <tr><td><span class="pn">551064-001</span></td><td style="font-size:11px">COVER HARNESS, INBOARD HATCH PANEL</td><td style="font-size:11px">POP (3D)</td><td><span class="pill p-green">Files sent Apr 14</span></td><td style="font-size:11px">No 3D print RFQ email</td></tr>
+          <tr><td><span class="pn">531244-001</span></td><td style="font-size:11px">WELDMENT, 45 ELBOW, SEND PUMP OUTLET</td><td style="font-size:11px">None assigned</td><td><span class="pill p-red">PDF only, no STEP</span></td><td style="font-size:11px">Not on BOM, no vendor, no RFQ</td></tr>
+          <tr><td><span class="pn">518650-002</span></td><td style="font-size:11px">FUSE SUPPORT ASSEMBLY, HVDM</td><td style="font-size:11px">HT</td><td><span class="pill p-red">STEP outstanding</span></td><td style="font-size:11px">Brand new part — no RFQ email</td></tr>
+          <tr><td><span class="pn">213779-002</span></td><td style="font-size:11px">COOLANT FITTING, QUICK CONNECT SAE-14</td><td style="font-size:11px">ECLIPSE / PNM</td><td><span class="pill p-red">STEP needed</span></td><td style="font-size:11px">SCD type, no RFQ found</td></tr>
+          <tr><td><span class="pn">529508-001</span></td><td style="font-size:11px">PIN, TIE DOWN</td><td style="font-size:11px">T / ECLIPSE / SWISS</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">No RFQ email found</td></tr>
+          <tr><td><span class="pn">530082-002</span></td><td style="font-size:11px">DECK, MACHINED PROTOTYPE, JCD</td><td style="font-size:11px">SVP</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">Revised dash, no Dec vendor, no RFQ</td></tr>
+          <tr><td><span class="pn">530061-001</span></td><td style="font-size:11px">FLIPPER SHAFT, JCD</td><td style="font-size:11px">T / ECLIPSE / Altamont</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">On BOM. T/ECLIPSE/Altamont in Vendor_Detail. No RFQ email found.</td></tr>
+          <tr><td><span class="pn">533061-001</span></td><td style="font-size:11px">WIRE DUCT 330MM, JCD</td><td style="font-size:11px">T</td><td><span class="pill p-amber">STEP needed</span></td><td style="font-size:11px">T is primary per Vendor_Detail; no RFQ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== BOM TREE ======================== -->
+<div class="page" id="page-bom">
+  <div class="topbar">
+    <div><h1>BOM assembly tree</h1><div class="sub">Interactive · click any assembly to expand or collapse · target parts show vendor and RFQ status</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="fbtn active" id="bt-expand" onclick="expandAll()">Expand all</button>
+      <button class="fbtn" id="bt-collapse" onclick="collapseAll()">Collapse all</button>
+    </div>
+  </div>
+
+  <div style="background:rgba(13,148,136,0.05);border:1px solid rgba(13,148,136,0.15);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--teal);line-height:1.7">
+    <strong>QC fit note:</strong> Devansh's requirement — all parts of one assembly should be built at the same factory. Assemblies with parts split across vendors need inter-vendor dimensional checks before final assembly.
+  </div>
+
+  <div class="card" style="overflow:visible">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--text2);align-items:center">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Legend:</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(29,111,219,0.12);border:1px solid rgba(29,111,219,0.3);border-radius:2px;display:inline-block"></span> Assembly / module</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.3);border-radius:2px;display:inline-block"></span> Target part — RFQ sent</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(217,119,6,0.10);border:1px solid rgba(217,119,6,0.3);border-radius:2px;display:inline-block"></span> Target part — no RFQ yet</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:rgba(220,38,38,0.10);border:1px solid rgba(220,38,38,0.3);border-radius:2px;display:inline-block"></span> Target part — action needed</span>
+    </div>
+    <div id="bom-dynamic" style="font-size:12px"></div>
+  </div>
+</div>
+
+<!-- ======================== VENDORS ======================== -->
+<div class="page" id="page-vendors">
+  <div class="topbar">
+    <div><h1>Vendor map</h1><div class="sub">Sub-vendors Beltim is using for this project · part counts and status</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>Assigned vendors</h3></div>
+    <div class="vendor-grid">
+      <div class="vendor-card active-v">
+        <div class="vc-name" style="color:var(--accent)">HiTech Metal Fab</div>
+        <div class="vc-email">Jorgef@hitechmetalfab.com</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>20</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--green)">Yes — Apr 10</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--amber)">Pending</span></div>
+        <div class="vc-stat"><span>Capability</span><span>Sheet metal, machining, weld</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--amber)">3 flags in RFQ email</span></div>
+      </div>
+      <div class="vendor-card active-v">
+        <div class="vc-name" style="color:var(--green)">JF Precision</div>
+        <div class="vc-email">jose@jfprecision.com</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>21+</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--green)">Yes — Apr 17</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--green)">Quote request confirmed</span></div>
+        <div class="vc-stat"><span>Capability</span><span>Precision machining, swiss</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--amber)">1 vendor conflict</span></div>
+      </div>
+      <div class="vendor-card">
+        <div class="vc-name" style="color:var(--amber)">Advanced Laser (ALW)</div>
+        <div class="vc-email">rick@adv-laser.com</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>5+1</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--amber)">Partial — Apr 17-18</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--amber)">Unknown</span></div>
+        <div class="vc-stat"><span>Capability</span><span>Laser cutting, sheet metal</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--green)">3 parts multi-quoted ✓</span></div>
+      </div>
+      <div class="vendor-card">
+        <div class="vc-name" style="color:var(--purple)">POP / 3D Print</div>
+        <div class="vc-email">(Beltim internal network)</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>6</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--red)">No email found</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--red)">—</span></div>
+        <div class="vc-stat"><span>Capability</span><span>3D printing, additive</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--red)">534378-005/006 missing files</span></div>
+      </div>
+      <div class="vendor-card">
+        <div class="vc-name">Carlos / Weld vendor</div>
+        <div class="vc-email">Former vendor (contact unknown)</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>5</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--red)">No email found</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--red)">—</span></div>
+        <div class="vc-stat"><span>Capability</span><span>Manifold weldments</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--red)">Vendor_Detail has "True" error</span></div>
+      </div>
+      <div class="vendor-card">
+        <div class="vc-name">Altamont / SVP / Others</div>
+        <div class="vc-email">Various specialty vendors</div>
+        <div class="vc-stat"><span>Parts assigned</span><span>5+</span></div>
+        <div class="vc-stat"><span>RFQ sent</span><span style="color:var(--red)">No email found</span></div>
+        <div class="vc-stat"><span>Response</span><span style="color:var(--red)">—</span></div>
+        <div class="vc-stat"><span>Capability</span><span>Weld, machining</span></div>
+        <div class="vc-stat"><span>Notes</span><span style="color:var(--amber)">Hinge weldment, gas spring mount</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+const PARTS_DATA = [
+  {pn:'518643-002',desc:'CHASSIS, HVDM',type:'Assembly',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'warn',note:'Mat change G90→G60 confirmed. No vendor in Vendor_Detail former col.'},
+  {pn:'518650-002',desc:'FUSE SUPPORT ASSY, HVDM',type:'Assembly',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'Brand new. HT assigned. STEP outstanding.'},
+  {pn:'518651-002',desc:'BUS BAR ASSY, SINGLE STUD, HVDM',type:'Assembly',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'warn',note:'Vendor_Detail "HT?" note in Vendor 3.'},
+  {pn:'518656-002',desc:'COVER, HVDM',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10 + ALW Apr 17',bom:true,flag:'conflict',note:'DUPLICATE: sent to both HT and ALW.'},
+  {pn:'518789-002',desc:'BOTTOM SUPPORT W/ INSERTS, HVDM CCA',type:'3D Print',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'518790-002',desc:'SHUT CARRIAGE ASSY W/ INSERTS',type:'Assembly',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'521560-002',desc:'BUS BAR W/ STUD, CONTACTOR TO SHUNT',type:'Assembly',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'521561-002',desc:'SHUNT SUPPORT ASSY, HVDM',type:'Assembly',qty:10,dec:'',rfq:'JF Apr 17',bom:true,flag:'warn',note:'Brand new. JF primary, HT+PNM backup.'},
+  {pn:'528019-001',desc:'CLEVIS PIN 16MM 81MM',type:'Detail',qty:10,dec:'JF',rfq:'—',bom:true,flag:'norFQ',note:'ECLIPSE+SWISS in Vendor_Detail. No RFQ.'},
+  {pn:'528072-003',desc:'HATCH PANEL, MACHINED PROTOTYPE',type:'Detail',qty:10,dec:'JF',rfq:'—',bom:true,flag:'norFQ',note:'SVP in Vendor_Detail. No RFQ found.'},
+  {pn:'528356-002',desc:'ACTUATOR REAR SUPPORT, JCD',type:'Detail',qty:20,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'529320-002',desc:'UNIFIED FRAME, WITH BOLT ONS, JCD02',type:'Assembly',qty:10,dec:'',rfq:'HiTech Apr 10',bom:true,flag:'conflict',note:'No vendor in Vendor_Detail. HT never quoted. Tolerance deviation pending Brett.'},
+  {pn:'529508-001',desc:'PIN, TIE DOWN',type:'Detail',qty:20,dec:'T',rfq:'—',bom:true,flag:'norFQ',note:'T/ECLIPSE/SWISS in Vendor_Detail. No RFQ.'},
+  {pn:'529736-001',desc:'UPPER BRACKET, RISER GUIDE, JCD',type:'Detail',qty:20,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'529797-001',desc:'SUPPORT COLUMN W/ INSERTS, JCD',type:'Assembly',qty:20,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'529799-002',desc:'CROSS BRACE, JCD',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10 + ALW Apr 17',bom:true,flag:'conflict',note:'DUPLICATE: sent to both HT and ALW.'},
+  {pn:'529856-002',desc:'DRUM ASSEMBLY, JCD',type:'Assembly',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'warn',note:'No former vendor in Vendor_Detail.'},
+  {pn:'529931-001',desc:'FAN BRACKET, JCD',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'529933-001',desc:'SUBPANEL, JCD',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'529980-002',desc:'SWING STOPPER W/ LIMIT SWITCH MOUNT',type:'Detail',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'529981-003',desc:'WEAR PLATE, RIM, JCD',type:'Detail',qty:40,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'530007-002',desc:'INNER SAFETY FLIPPER WELDMENT, JCD',type:'Assembly',qty:10,dec:'True(ERROR)',rfq:'—',bom:true,flag:'conflict',note:'Vendor_Detail data entry error — "True". No valid vendor.'},
+  {pn:'530017-002',desc:'GAS SPRING MOUNT, JCD',type:'Detail',qty:20,dec:'Altamont',rfq:'—',bom:true,flag:'norFQ',note:'No RFQ email to Altamont found.'},
+  {pn:'530049-002',desc:'NUT PLATE ASSY, SEND PUMP, JCD',type:'Assembly',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'530052-001',desc:'GAS STRUT MOUNT BLOCK, RISER, JCD',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530058-001',desc:'HINGE BEARING BLOCK, W/ BEARING, JCD',type:'Assembly',qty:20,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530061-001',desc:'FLIPPER SHAFT, JCD',type:'Detail',qty:20,dec:'T',rfq:'—',bom:true,flag:'norFQ',note:'T/ECLIPSE/ALTAMONT in Vendor_Detail. No RFQ email found.'},
+  {pn:'530077-004',desc:'HINGE WELDMENT, JCD',type:'Assembly',qty:10,dec:'Altamont',rfq:'—',bom:true,flag:'norFQ',note:'Altamont assigned. No RFQ email found.'},
+  {pn:'530082-002',desc:'DECK, MACHINED PROTOTYPE, JCD',type:'Detail',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'Revised dash. No Dec vendor. SVP assigned.'},
+  {pn:'530113-001',desc:'SHAFT WASHER, HINGE',type:'Detail',qty:20,dec:'ALW',rfq:'ALW Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530117-002',desc:'FIXED ARM ASSY, HATCH, JCD',type:'Assembly',qty:10,dec:'DP',rfq:'—',bom:true,flag:'norFQ',note:'HT+DP in Vendor_Detail. No RFQ found.'},
+  {pn:'530150-001',desc:'OUTER ACTUATOR ARM W/ BUSHINGS, JCD',type:'Assembly',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530152-001',desc:'INNER ACTUATOR ARM W/ BUSHINGS, JCD',type:'Assembly',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530194-001',desc:'CLEVIS PIN 16MM 54MM',type:'Detail',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'530484-001',desc:'RISER WELDMENT, JCD',type:'Assembly',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'530708-002',desc:'DOCK RECEPTACLE, JCD',type:'Detail',qty:10,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'531146-003',desc:'WELDMENT, MANIFOLD, SEND PUMP INPUT',type:'Assembly',qty:10,dec:'DP',rfq:'—',bom:true,flag:'norFQ',note:'DP primary, CARLOS former. No RFQ found.'},
+  {pn:'531153-002',desc:'WELDMENT, MANIFOLD, SEND PUMP OUTLET',type:'Assembly',qty:10,dec:'True(ERROR)',rfq:'—',bom:true,flag:'conflict',note:'Data entry error. CARLOS former vendor.'},
+  {pn:'531157-003',desc:'WELDMENT, MANIFOLD, RETURN PUMP INLET',type:'Assembly',qty:10,dec:'True(ERROR)',rfq:'—',bom:true,flag:'conflict',note:'Data entry error. CARLOS former vendor.'},
+  {pn:'531170-003',desc:'WELDMENT, INLINE HEATER, JCD',type:'Assembly',qty:10,dec:'True(ERROR)',rfq:'—',bom:true,flag:'conflict',note:'Data entry error. CARLOS former vendor.'},
+  {pn:'531191-003',desc:'WELDMENT, RETURN MANIFOLD, JCD',type:'Assembly',qty:10,dec:'True(ERROR)',rfq:'—',bom:true,flag:'conflict',note:'Data entry error. CARLOS former vendor.'},
+  {pn:'531244-001',desc:'WELDMENT, 45 ELBOW, SEND PUMP OUTLET',type:'Assembly',qty:10,dec:'',rfq:'—',bom:false,flag:'conflict',note:'Not on BOM, no vendor, PDF only, no STEP. Fully unactioned.'},
+  {pn:'531296-001',desc:'PLATE, SEND PUMP ISOLATION, ACETAL',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17 + ALW Apr 18',bom:true,flag:'conflict',note:'3 vendors conflict: PNM is Vendor_Detail primary.'},
+  {pn:'531306-001',desc:'BRACKET, INLINE HEATER, 304SS',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'531648-001',desc:'TRACK ROLLER FLANGE, RISER, JCD',type:'Detail',qty:20,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'531723-002',desc:'BRACKET, 3-WAY VALVE MOUNT, JCD',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'531727-003',desc:'BRACKET, AIR RELIEF MOUNT, 3-WAY VALVE',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'531798-001',desc:'ISOLATION MONITORING PANEL, JCD02',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'531819-001',desc:'PLATE, RETURN PUMP ISOLATION, ACETAL',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'532724-001',desc:'HOUSING, MAIN LOGIC BOARD, GSE',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'532840-001',desc:'SFP RETAINER, MLB, GSE',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'532902-001',desc:'GUIDE CONE W/ INSERTS, JCD, GSE',type:'3D Print',qty:10,dec:'DP',rfq:'—',bom:true,flag:'norFQ',note:'DP or POP. 3D Print. No RFQ email sent.'},
+  {pn:'533050-001',desc:'WIRE DUCT 166MM, JCD',type:'Detail',qty:20,dec:'JF',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'533061-001',desc:'WIRE DUCT 330MM, JCD',type:'Detail',qty:10,dec:'T',rfq:'—',bom:true,flag:'norFQ',note:'T primary per Vendor_Detail. No RFQ.'},
+  {pn:'533083-001',desc:'35MM DIN RAIL, ALUMINUM',type:'Detail',qty:20,dec:'T',rfq:'JF Apr 17',bom:true,flag:'ok',note:'T primary; JF also quoted.'},
+  {pn:'533209-001',desc:'GROUND BAR, JCD, GSE',type:'Detail',qty:10,dec:'PNM',rfq:'JF Apr 17',bom:true,flag:'ok',note:''},
+  {pn:'534117-001',desc:'MLB RETAINER TAB, JCD',type:'Detail',qty:20,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'534378-005',desc:'LEFT FILLER W/ INSERTS, RISER, JCD',type:'3D Print',qty:10,dec:'',rfq:'—',bom:true,flag:'conflict',note:'POP — missing sub files. No STEP, no RFQ.'},
+  {pn:'534378-006',desc:'RIGHT FILLER W/ INSERTS, RISER',type:'3D Print',qty:10,dec:'',rfq:'—',bom:true,flag:'conflict',note:'POP — missing sub files. No STEP, no RFQ.'},
+  {pn:'534501-001',desc:'BRACKET, SEND PUMP MANIFOLD SUPPORT',type:'Detail',qty:10,dec:'HT',rfq:'HiTech Apr 10',bom:true,flag:'ok',note:''},
+  {pn:'544669-003',desc:'NAMEPLATE, JCD02, GSE',type:'Detail',qty:20,dec:'',rfq:'HiTech Apr 10 (wrong rev)',bom:true,flag:'conflict',note:'BOM has -003. HiTech email sent -001. Rev mismatch.'},
+  {pn:'545202-002',desc:'DOCK COVER, TEMPORARY MOCKUP, JCD',type:'Detail',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'Revised from -001. No Dec vendor. POP. No RFQ.'},
+  {pn:'545227-003',desc:'ELECTRONICS COVER, DOCK, JCD ASSY',type:'3D Print',qty:10,dec:'',rfq:'—',bom:true,flag:'conflict',note:'= 548348-002 + 548349-002. Files sent Apr 17. No RFQ yet.'},
+  {pn:'546884-001',desc:'RISER GUIDE, LEFT, JCD',type:'Detail',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'New PN. HT assigned. STEP sent Apr 14. No RFQ.'},
+  {pn:'546884-002',desc:'RISER GUIDE, RIGHT, JCD',type:'Detail',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'New PN. HT assigned. STEP sent Apr 14. No RFQ.'},
+  {pn:'549775-001',desc:'SEAL E STOP INNER PERIMETER DOCK',type:'Detail',qty:10,dec:'',rfq:'ALW Apr 17',bom:true,flag:'ok',note:'Gasket/seal type. ALW in RFQ.'},
+  {pn:'551064-001',desc:'COVER HARNESS, INBOARD HATCH PANEL',type:'3D Print',qty:10,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'POP. Files sent Apr 14. No RFQ email.'},
+  {pn:'213779-002',desc:'COOLANT FITTING, QUICK CONNECT SAE-14',type:'SCD',qty:20,dec:'',rfq:'—',bom:true,flag:'norFQ',note:'ECLIPSE+PNM. Brand new. No RFQ.'},
+  {pn:'514086-001',desc:'SHUNT SPACER, HVDM',type:'Detail',qty:20,dec:'',rfq:'JF Apr 17',bom:true,flag:'ok',note:'Brand new. JF+PNM.'},
+  {pn:'514100-003',desc:'WALL INSULATOR, HVDM',type:'Detail',qty:10,dec:'',rfq:'ALW Apr 17',bom:true,flag:'ok',note:'Brand new. HT+ALW.'},
+  {pn:'528019-001',desc:'CLEVIS PIN 16MM 81MM',type:'Detail',qty:10,dec:'JF',rfq:'—',bom:true,flag:'norFQ',note:'ECLIPSE+SWISS also listed.'},
+];
+
+let partsFilter = 'all';
+
+function pillStatus(f) {
+  if(f==='ok') return '<span class="pill p-green">OK</span>';
+  if(f==='warn') return '<span class="pill p-amber">Attention</span>';
+  if(f==='conflict') return '<span class="pill p-red">Conflict</span>';
+  if(f==='norFQ') return '<span class="pill p-amber">No RFQ</span>';
+  return '';
+}
+
+function rfqPill(rfq) {
+  if(rfq === '—') return '<span class="pill p-red">—</span>';
+  if(rfq.includes('+')) return '<span class="pill p-red">' + rfq + '</span>';
+  if(rfq.includes('wrong')) return '<span class="pill p-red">' + rfq + '</span>';
+  return '<span class="pill p-green">' + rfq + '</span>';
+}
+
+function renderParts(data) {
+  const tb = document.getElementById('parts-tbody');
+  tb.innerHTML = data.map(r => `<tr data-flag="${r.flag}" data-type="${r.type.toLowerCase().replace(' ','')}" data-pn="${r.pn.toLowerCase()}" data-desc="${r.desc.toLowerCase()}">
+    <td><span class="pn">${r.pn}</span></td>
+    <td style="font-size:11px;color:var(--text2)">${r.desc}</td>
+    <td><span class="pill p-gray" style="font-size:10px">${r.type}</span></td>
+    <td style="text-align:center;font-family:var(--mono);font-size:11px">${r.qty}</td>
+    <td style="font-size:11px;font-family:var(--mono)">${r.dec||'<span style="color:var(--text3)">—</span>'}</td>
+    <td>${rfqPill(r.rfq)}</td>
+    <td>${r.bom ? '<span class="pill p-green">On BOM</span>' : '<span class="pill p-red">Not on BOM</span>'}</td>
+    <td>${pillStatus(r.flag)}</td>
+    <td style="font-size:11px;color:var(--text3);max-width:200px">${r.note}</td>
+  </tr>`).join('');
+  updateCount();
+}
+
+function setPartsFilter(f, btn) {
+  partsFilter = f;
+  document.querySelectorAll('#page-parts .fbtn').forEach(b => { b.className = 'fbtn'; });
+  const cls = f === 'conflict' ? 'fbtn active-red' : f === 'norFQ' ? 'fbtn active-amber' : f === 'ok' ? 'fbtn active-green' : 'fbtn active';
+  btn.className = cls;
+  applyPartsFilter();
+}
+
+function filterParts() { applyPartsFilter(); }
+
+function applyPartsFilter() {
+  const q = (document.getElementById('parts-search').value||'').toLowerCase();
+  const rows = document.querySelectorAll('#parts-tbody tr');
+  let vis = 0;
+  rows.forEach(r => {
+    const mq = !q || r.dataset.pn.includes(q) || r.dataset.desc.includes(q);
+    const mf = partsFilter === 'all'
+      || (partsFilter === 'ok' && r.dataset.flag === 'ok')
+      || (partsFilter === 'conflict' && r.dataset.flag === 'conflict')
+      || (partsFilter === 'norFQ' && r.dataset.flag === 'norFQ')
+      || (partsFilter === 'assembly' && r.dataset.type === 'assembly')
+      || (partsFilter === '3dp' && r.dataset.type === '3dprint');
+    r.style.display = (mq && mf) ? '' : 'none';
+    if(mq && mf) vis++;
+  });
+  document.getElementById('row-count').textContent = '(' + vis + ')';
+}
+
+function updateCount() {
+  const rows = document.querySelectorAll('#parts-tbody tr');
+  document.getElementById('row-count').textContent = '(' + rows.length + ')';
+}
+
+renderParts(PARTS_DATA);
+
+// BOM Tree
+const BOM_TREE = {"p":"527649-003","d":"JCD02, PIT DISPENSER, GSE","m":"MechanicalAssembly","q":1,"c":[{"p":"529978-002","d":"DECK AND HATCH MODULE, JCD02","m":"MechanicalAssembly","q":1,"c":[{"p":"529979-002","d":"DECK ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"530082-002","d":"DECK, MACHINED PROTOTYPE, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"529508-001","d":"PIN, TIE DOWN","m":"Machined","q":2,"c":[],"target":true},{"p":"529981-003","d":"WEAR PLATE, RIM, JCD","m":"Machined","q":4,"c":[],"target":true},{"p":"529736-001","d":"UPPER BRACKET, RISER GUIDE, JCD","m":"Sheetmetal","q":2,"c":[],"target":true},{"p":"530017-002","d":"GAS SPRING MOUNT, JCD","m":"Sheetmetal","q":2,"c":[],"target":true}],"target":false},{"p":"530195-003","d":"ACTUATOR WITH MOUNTING HARDWARE, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"528356-002","d":"ACTUATOR REAR SUPPORT, WITH FORCE FEEDBACK, JCD","m":"Sheetmetal","q":2,"c":[],"target":true},{"p":"530194-001","d":"CLEVIS PIN, 16MM DIAMETER, 54MM USABLE LENGTH","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"546884-002","d":"RISER GUIDE, RIGHT, JCD","m":"Sheetmetal","q":1,"c":[],"target":true},{"p":"546884-001","d":"RISER GUIDE, LEFT, JCD","m":"Sheetmetal","q":1,"c":[],"target":true},{"p":"530052-001","d":"GAS STRUT MOUNT BLOCK, RISER, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"545091-001","d":"DOCK ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"530708-002","d":"DOCK RECEPTACLE, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"213779-002","d":"COOLANT FITTING, QUICK CONNECT, SAE-14","m":"NotApplicable","q":2,"c":[],"target":true},{"p":"545227-003","d":"ELECTRONICS COVER, DOCK, JCD, ASSY.","m":"Additive","q":1,"c":[],"target":true},{"p":"549775-001","d":"SEAL E STOP INNER PERIMETER DOCK CCA","m":"NotApplicable","q":1,"c":[],"target":true}],"target":false},{"p":"528072-003","d":"HATCH PANEL, MACHINED PROTOTYPE, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"544669-003","d":"NAMEPLATE, JCD02, GSE","m":"Other","q":1,"c":[],"target":true},{"p":"545202-002","d":"DOCK COVER, TEMPORARY MOCKUP, JCD, GSE","m":"InjectionMolded","q":1,"c":[],"target":true},{"p":"530006-002","d":"INNER SAFETY FLIPPER ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"530007-002","d":"INNER SAFETY FLIPPER WELDMENT, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"532902-001","d":"GUIDE CONE WITH INSERTS, JCD, GSE","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"530483-003","d":"SAFETY RISER ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"530484-001","d":"RISER WELDMENT, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"531648-001","d":"TRACK ROLLER FLANGE, RISER, JCD","m":"Machined","q":2,"c":[],"target":true},{"p":"534378-005","d":"LEFT FILLER WITH INSERTS, RISER, JCD, GSE","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"534378-006","d":"RIGHT FILLER WITH INSERTS, RISER, GSE","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"530151-003","d":"HATCH HINGE ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"530113-001","d":"SHAFT WASHER, HINGE","m":"Machined","q":2,"c":[],"target":true},{"p":"530117-002","d":"FIXED ARM ASSEMBLY, HATCH, JCD","m":"MechanicalAssembly","q":1,"c":[],"target":true},{"p":"530077-004","d":"HINGE WELDMENT, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"528019-001","d":"CLEVIS PIN, 16MM DIAMETER, 81MM USABLE LENGTH","m":"Machined","q":1,"c":[],"target":true},{"p":"530150-001","d":"OUTER ACTUATOR ARM WITH BUSHINGS, JCD","m":"MechanicalAssembly","q":1,"c":[],"target":true},{"p":"530152-001","d":"INNER ACTUATOR ARM WITH BUSHINGS, JCD","m":"MechanicalAssembly","q":1,"c":[],"target":true},{"p":"530058-001","d":"HINGE BEARING BLOCK, WITH BEARING, JCD","m":"MechanicalAssembly","q":2,"c":[],"target":true},{"p":"529980-002","d":"SWING STOPPER, WITH LIMIT SWITCH MOUNT, JCD","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"530061-001","d":"FLIPPER SHAFT, JCD","m":"Machined","q":2,"c":[],"target":true},{"p":"551064-001","d":"COVER HARNESS, INBOARD HATCH PANEL","m":"Additive","q":1,"c":[],"target":true}],"target":false},{"p":"529379-001","d":"CORE MODULE, JCD, GSE","m":"MechanicalAssembly","q":1,"c":[{"p":"529320-002","d":"UNIFIED FRAME, WITH BOLT ONS, JCD02","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"545087-001","d":"ASSEMBLY, SEND PUMP ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"545080-001","d":"ASSEMBLY, MANIFOLD, SEND PUMP INLET, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531146-003","d":"WELDMENT, MANIFOLD, SEND PUMP INPUT, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"545081-001","d":"COLLECTOR, MANIFOLD, SEND PUMP OUTLET, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531153-002","d":"WELDMENT, MANIFOLD, SEND PUMP OUTLET, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"534501-001","d":"BRACKET, SEND PUMP MANIFOLD SUPPORT, 304SS, JCD","m":"Sheetmetal","q":1,"c":[],"target":true}],"target":false},{"p":"528068-001","d":"ASSEMBLY, INLINE HEATER, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531170-003","d":"WELDMENT, INLINE HEATER, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"545086-001","d":"ASSEMBLY, 3-WAY VALVE, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531727-003","d":"BRACKET, AIR RELIEF MOUNT, 3-WAY VALVE, JCD","m":"Sheetmetal","q":1,"c":[],"target":true},{"p":"531723-002","d":"BRACKET, 3-WAY VALVE MOUNT, JCD","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"531306-001","d":"BRACKET, INLINE HEATER, 304SS JCD","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"531819-001","d":"PLATE, RETURN PUMP ISOLATION, ACETAL PLASTIC, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"531296-001","d":"PLATE, SEND PUMP ISOLATION, ACETAL PLASTIC, JCD","m":"Machined","q":1,"c":[],"target":true},{"p":"530049-002","d":"NUT PLATE ASSEMBLY, SEND PUMP, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"545088-001","d":"ASSEMBLY, RETURN MANIFOLD, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531191-003","d":"WELDMENT, RETURN MANIFOLD, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"545082-001","d":"ASSEMBLY, MANIFOLD, RETURN PUMP INLET, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"531157-003","d":"WELDMENT, MANIFOLD, RETURN PUMP INLET, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false},{"p":"529977-002","d":"SUBPANEL ASSEMBLY, JCD, GSE","m":"ElectroMechanicalA","q":1,"c":[{"p":"529933-001","d":"SUBPANEL, JCD","m":"Sheetmetal","q":1,"c":[],"target":true}],"target":false},{"p":"511420-005","d":"HIGH VOLTAGE DISCONNECT MODULE, GSE","m":"MechanicalAssembly","q":2,"c":[{"p":"521556-002","d":"COVER W/ LABEL, HVDM","m":"Bonded-FastenedAss","q":1,"c":[{"p":"518656-002","d":"COVER, HVDM","m":"Other","q":1,"c":[],"target":true}],"target":false},{"p":"521557-004","d":"HVDM W/O COVER","m":"MechanicalAssembly","q":1,"c":[{"p":"518791-004","d":"CCA WITH CARRIAGE AND SUPPORT, HVDM","m":"Bonded-FastenedAss","q":1,"c":[{"p":"518789-002","d":"BOTTOM SUPPORT WITH INSERTS, HVDM CCA","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"518790-002","d":"SHUT CARRIAGE ASSEMBLY WITH INSERTS","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"514086-001","d":"SHUNT SPACER, FOR WSBS85S6L1000JK80, HVDM","m":"Machined","q":2,"c":[],"target":true}],"target":false},{"p":"514100-003","d":"WALL INSULATOR, HVDM","m":"Machined","q":1,"c":[],"target":true},{"p":"518643-002","d":"CHASSIS, HVDM","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"518650-002","d":"FUSE SUPPORT ASSEMBLY, HVDM","m":"MechanicalAssembly","q":1,"c":[],"target":true},{"p":"518651-002","d":"BUS BAR ASSEMBLY, SINGLE STUD, HVDM","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"521560-002","d":"BUS BAR WITH STUD, CONTACTOR TO SHUNT, HVDM","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"521561-002","d":"SHUNT SUPPORT ASSEMBLY, HVDM","m":"Bonded-FastenedAss","q":1,"c":[],"target":true}],"target":false}],"target":false},{"p":"546535-001","d":"CIRCULATION FAN ASSEMBLY, JCD","m":"MechanicalAssembly","q":1,"c":[{"p":"529931-001","d":"FAN BRACKET, JCD","m":"Sheetmetal","q":1,"c":[],"target":true}],"target":false},{"p":"530032-002","d":"MAIN LOGIC BOARD ASSEMBLY, DISPENSER","m":"ElectroMechanicalA","q":1,"c":[{"p":"532724-001","d":"HOUSING, MAIN LOGIC BOARD, GSE","m":"Machined","q":1,"c":[],"target":true},{"p":"532840-001","d":"SFP RETAINER, MLB, GSE","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"531768-001","d":"ISOLATION MONITORING PANEL ASSEMBLY, JCD","m":"ElectroMechanicalA","q":1,"c":[{"p":"531798-001","d":"ISOLATION MONITORING PANEL, JCD02","m":"Sheetmetal","q":1,"c":[],"target":true},{"p":"533083-001","d":"35MM DIN RAIL, ALUMINUM, 164MM LONG","m":"Other","q":2,"c":[],"target":true},{"p":"533050-001","d":"WIRE DUCT, 1 INCH HEIGHT, 1 INCH WIDTH, NARROW-SLOT, UL94 V-0, 166MM L","m":"Other","q":2,"c":[],"target":true},{"p":"533061-001","d":"WIRE DUCT, 1 INCH HEIGHT, 1 INCH WIDTH, NARROW-SLOT, UL94 V-0, 330MM L","m":"Other","q":1,"c":[],"target":true}],"target":false},{"p":"534117-001","d":"MLB RETAINER TAB, JCD","m":"Sheetmetal","q":2,"c":[],"target":true},{"p":"544669-003","d":"NAMEPLATE, JCD02, GSE","m":"Other","q":1,"c":[],"target":true},{"p":"533209-001","d":"GROUND BAR, JCD, GSE","m":"Machined","q":1,"c":[],"target":true}],"target":false},{"p":"529856-002","d":"DRUM ASSEMBLY, JCD","m":"Bonded-FastenedAss","q":1,"c":[],"target":true},{"p":"529799-002","d":"CROSS BRACE, JCD","m":"Sheetmetal","q":1,"c":[],"target":true},{"p":"529797-001","d":"SUPPORT COLUMN WITH INSERTS, JCD","m":"MechanicalAssembly","q":2,"c":[],"target":true}],"target":false};
+
+const VENDOR_MAP = {"518643-002":"HiTech","518650-002":"HiTech (no RFQ)","518651-002":"HiTech + JF","518656-002":"HiTech + ALW","518789-002":"JF","518790-002":"JF","521560-002":"HiTech","521561-002":"JF","528019-001":"No RFQ","528072-003":"No RFQ","528356-002":"HiTech","529320-002":"HiTech ⚠","529508-001":"No RFQ","529736-001":"JF","529797-001":"HiTech","529799-002":"HiTech + ALW","529856-002":"HiTech","529931-001":"HiTech","529933-001":"HiTech","529980-002":"JF","529981-003":"HiTech","530007-002":"No RFQ ⚠","530017-002":"JF","530049-002":"HiTech","530052-001":"JF","530058-001":"JF","530061-001":"No RFQ","530077-004":"No RFQ","530082-002":"No RFQ","530113-001":"HiTech + ALW","530117-002":"No RFQ","530150-001":"JF","530152-001":"JF","530194-001":"JF","530484-001":"HiTech","530708-002":"JF","531146-003":"No RFQ","531153-002":"No RFQ ⚠","531157-003":"No RFQ ⚠","531170-003":"No RFQ ⚠","531191-003":"No RFQ ⚠","531296-001":"JF + ALW","531306-001":"HiTech","531648-001":"JF","531723-002":"HiTech","531727-003":"HiTech","531798-001":"HiTech","531819-001":"JF","532724-001":"JF","532840-001":"JF","532902-001":"No RFQ","533050-001":"JF","533061-001":"JF","533083-001":"JF","533209-001":"JF","534117-001":"HiTech","534378-005":"No RFQ ⚠","534378-006":"No RFQ ⚠","534501-001":"HiTech","544669-003":"HiTech ⚠rev","545202-002":"No RFQ","545227-003":"No RFQ ⚠","546884-001":"No RFQ (HT)","546884-002":"No RFQ (HT)","549775-001":"ALW","551064-001":"No RFQ","213779-002":"No RFQ","514086-001":"JF","514100-003":"HiTech + ALW"};
+
+const bomExpandState = {};
+
+function vendorChip(pn) {
+  const v = VENDOR_MAP[pn] || '';
+  if(!v) return '';
+  const isWarn = v.includes('⚠');
+  const isNoRFQ = v.startsWith('No RFQ') || v.includes('no RFQ');
+  const hasMulti = v.includes('+');
+  const bg = isWarn ? 'rgba(220,38,38,0.10)' : isNoRFQ ? 'rgba(217,119,6,0.10)' : hasMulti ? 'rgba(5,150,105,0.10)' : 'rgba(29,111,219,0.08)';
+  const col = isWarn ? 'var(--red)' : isNoRFQ ? 'var(--amber)' : hasMulti ? 'var(--green)' : 'var(--accent)';
+  return `<span style="font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:3px;background:${bg};color:${col};white-space:nowrap">${v}</span>`;
+}
+
+function mfgBadge(m) {
+  const labels = {'Machined':'Machined','Sheetmetal':'Sheet metal','Bonded-FastenedAss':'Weldment/Bonded','MechanicalAssembly':'Mech. Assy','ElectroMechanicalA':'Electro-Mech.','Additive':'3D Print','Other':'Other','NotApplicable':'N/A','InjectionMolded':'Injection Mold'};
+  const label = labels[m] || m;
+  return `<span style="font-size:10px;color:var(--text3);font-family:var(--mono)">${label}</span>`;
+}
+
+function renderBomNode(node, depth, container) {
+  const id = 'bom_' + node.p.replace(/-/g,'_');
+  const hasChildren = node.c && node.c.length > 0;
+  const isRoot = depth === 0;
+
+  const row = document.createElement('div');
+  row.style.cssText = `display:flex;align-items:center;gap:8px;padding:7px 16px 7px ${16 + depth*20}px;border-bottom:1px solid var(--border);transition:background 0.1s;cursor:${hasChildren?'pointer':'default'};background:${node.target?(VENDOR_MAP[node.p]&&!VENDOR_MAP[node.p].startsWith('No')?'rgba(5,150,105,0.04)':'rgba(217,119,6,0.04)'):(isRoot?'rgba(29,111,219,0.04)':'rgba(0,0,0,0.015)')};`;
+  row.onmouseenter = () => { row.style.background = 'rgba(0,0,0,0.03)'; };
+  row.onmouseleave = () => { row.style.background = node.target?(VENDOR_MAP[node.p]&&!VENDOR_MAP[node.p].startsWith('No')?'rgba(5,150,105,0.04)':'rgba(217,119,6,0.04)'):(isRoot?'rgba(29,111,219,0.04)':'rgba(0,0,0,0.015)'); };
+
+  // Toggle button
+  const tog = document.createElement('span');
+  tog.style.cssText = `width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--text3);border-radius:3px;border:1px solid var(--border2);background:var(--surface);`;
+  if(hasChildren) {
+    const isExpanded = bomExpandState[id] !== false;
+    tog.textContent = isExpanded ? '−' : '+';
+    tog.style.cursor = 'pointer';
+    tog.style.color = 'var(--accent)';
+    tog.style.borderColor = 'rgba(29,111,219,0.3)';
+  } else {
+    tog.style.border = 'none';
+    tog.style.background = 'transparent';
+  }
+  row.appendChild(tog);
+
+  // PN
+  const pnEl = document.createElement('span');
+  pnEl.textContent = node.p;
+  pnEl.style.cssText = `font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap;min-width:90px;flex-shrink:0;`;
+  row.appendChild(pnEl);
+
+  // Description
+  const descEl = document.createElement('span');
+  descEl.textContent = node.d;
+  descEl.style.cssText = `font-size:12px;color:${node.target?'var(--text)':'var(--text2)'};font-weight:${(isRoot||(!node.target&&hasChildren))?'500':'400'};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;`;
+  row.appendChild(descEl);
+
+  // Qty
+  const qtyEl = document.createElement('span');
+  qtyEl.textContent = 'qty ' + node.q;
+  qtyEl.style.cssText = `font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;`;
+  row.appendChild(qtyEl);
+
+  // Mfg type
+  const mfgEl = document.createElement('span');
+  mfgEl.innerHTML = mfgBadge(node.m);
+  mfgEl.style.cssText = 'flex-shrink:0;min-width:80px;';
+  row.appendChild(mfgEl);
+
+  // Vendor chip (target parts only)
+  if(node.target) {
+    const vcEl = document.createElement('span');
+    vcEl.innerHTML = vendorChip(node.p);
+    vcEl.style.cssText = 'flex-shrink:0;min-width:110px;';
+    row.appendChild(vcEl);
+  } else {
+    const spacer = document.createElement('span');
+    spacer.style.cssText = 'flex-shrink:0;min-width:110px;';
+    row.appendChild(spacer);
+  }
+
+  container.appendChild(row);
+
+  // Children container
+  if(hasChildren) {
+    const childCon = document.createElement('div');
+    childCon.id = id + '_children';
+    const isExpanded = bomExpandState[id] !== false;
+    childCon.style.display = isExpanded ? 'block' : 'none';
+
+    node.c.forEach(child => renderBomNode(child, depth+1, childCon));
+    container.appendChild(childCon);
+
+    const toggleFn = (e) => {
+      e.stopPropagation();
+      const expanded = childCon.style.display !== 'none';
+      childCon.style.display = expanded ? 'none' : 'block';
+      tog.textContent = expanded ? '+' : '−';
+      bomExpandState[id] = !expanded;
+    };
+    tog.addEventListener('click', toggleFn);
+    row.addEventListener('click', toggleFn);
+  }
+}
+
+function buildBomTree() {
+  const container = document.getElementById('bom-dynamic');
+  container.innerHTML = '';
+  renderBomNode(BOM_TREE, 0, container);
+}
+
+function expandAll() {
+  Object.keys(bomExpandState).forEach(k => bomExpandState[k] = true);
+  document.querySelectorAll('[id$="_children"]').forEach(el => el.style.display = 'block');
+  document.querySelectorAll('#bom-dynamic span[style*="cursor: pointer"]').forEach(el => el.textContent = '−');
+}
+
+function collapseAll() {
+  Object.keys(bomExpandState).forEach(k => bomExpandState[k] = false);
+  document.querySelectorAll('[id$="_children"]').forEach(el => { if(!el.id.startsWith('bom_527649')) el.style.display = 'none'; });
+  document.querySelectorAll('#bom-dynamic span[style*="cursor: pointer"]').forEach(el => el.textContent = '+');
+}
+
+// ===== PRICE COMPARISON TABLE =====
+// ===== PRICE COMPARISON TABLE =====
+// vendors: ht=HiTech, jf=JF Precision, alw=Advanced Laser, pnm=PNM
+// status: 'sent'=RFQ sent no reply, 'ack'=acknowledged, 'quoted'=price in, 'not'=not sent
+// price: null until vendor responds
+// flag: warning text if any
+const COMPARE_DATA = [
+  // vendor columns: ht=HiTech, jf=JF Precision, alw=Advanced Laser (ALW), pnm=PNM/other
+  // status: 'sent'=sent no reply yet, 'confirmed'=vendor confirmed receipt, 'quoted'=price received, 'not'=not sent to this vendor
+  {pn:'518643-002',desc:'CHASSIS, HVDM',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'Mat change G90→G60 — resend updated drawing before quote is valid'},
+  {pn:'518650-002',desc:'FUSE SUPPORT ASSY, HVDM',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent yet — assign vendor and send'},
+  {pn:'518651-002',desc:'BUS BAR ASSY, SINGLE STUD, HVDM',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'✓ HT + JF both quoted — compare prices'},
+  {pn:'518656-002',desc:'COVER, HVDM',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'sent',d:'Apr 17'},pnm:{s:'not'},note:'✓ HT + ALW both quoted — compare prices'},
+  {pn:'518789-002',desc:'BOTTOM SUPPORT W/ INSERTS, HVDM CCA',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'518790-002',desc:'SHUT CARRIAGE ASSY W/ INSERTS',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'521560-002',desc:'BUS BAR W/ STUD, CONTACTOR TO SHUNT',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'521561-002',desc:'SHUNT SUPPORT ASSY, HVDM',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'HT + PNM also in Vendor_Detail — consider adding'},
+  {pn:'528019-001',desc:'CLEVIS PIN 16MM 81MM',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — ECLIPSE/SWISS in Vendor_Detail'},
+  {pn:'528072-003',desc:'HATCH PANEL, MACHINED PROTOTYPE',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — SVP in Vendor_Detail'},
+  {pn:'528356-002',desc:'ACTUATOR REAR SUPPORT, JCD',qty:20,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529320-002',desc:'UNIFIED FRAME, WITH BOLT ONS, JCD02',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Tolerance deviation pending Brett — quote blocked until resolved'},
+  {pn:'529508-001',desc:'PIN, TIE DOWN',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — T/ECLIPSE/SWISS in Vendor_Detail'},
+  {pn:'529736-001',desc:'UPPER BRACKET, RISER GUIDE, JCD',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM is primary per Vendor_Detail'},
+  {pn:'529797-001',desc:'SUPPORT COLUMN W/ INSERTS, JCD',qty:20,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529799-002',desc:'CROSS BRACE, JCD',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'sent',d:'Apr 17'},pnm:{s:'not'},note:'✓ HT + ALW both quoted — compare prices'},
+  {pn:'529856-002',desc:'DRUM ASSEMBLY, JCD',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529931-001',desc:'FAN BRACKET, JCD',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529933-001',desc:'SUBPANEL, JCD',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529980-002',desc:'SWING STOPPER W/ LIMIT SWITCH MOUNT',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'529981-003',desc:'WEAR PLATE, RIM, JCD',qty:40,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'JF also in Vendor_Detail — consider adding for comparison'},
+  {pn:'530007-002',desc:'INNER SAFETY FLIPPER WELDMENT, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Vendor_Detail data entry error ("True"). Carlos is former vendor — no RFQ sent'},
+  {pn:'530017-002',desc:'GAS SPRING MOUNT, JCD',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'Altamont also in Vendor_Detail — consider adding'},
+  {pn:'530049-002',desc:'NUT PLATE ASSY, SEND PUMP, JCD',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530052-001',desc:'GAS STRUT MOUNT BLOCK, RISER, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM primary per Vendor_Detail'},
+  {pn:'530058-001',desc:'HINGE BEARING BLOCK, W/ BEARING, JCD',qty:20,type:'Assembly',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530061-001',desc:'FLIPPER SHAFT, JCD',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — T/ECLIPSE/Altamont in Vendor_Detail'},
+  {pn:'530077-004',desc:'HINGE WELDMENT, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — Altamont in Vendor_Detail'},
+  {pn:'530082-002',desc:'DECK, MACHINED PROTOTYPE, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — SVP in Vendor_Detail. Revised dash, no Dec vendor.'},
+  {pn:'530113-001',desc:'SHAFT WASHER, HINGE',qty:20,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'sent',d:'Apr 17'},pnm:{s:'not'},note:'✓ HT + ALW both quoted — compare prices'},
+  {pn:'530117-002',desc:'FIXED ARM ASSY, HATCH, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — HT/DP in Vendor_Detail'},
+  {pn:'530150-001',desc:'OUTER ACTUATOR ARM W/ BUSHINGS, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530152-001',desc:'INNER ACTUATOR ARM W/ BUSHINGS, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530194-001',desc:'CLEVIS PIN 16MM 54MM',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530484-001',desc:'RISER WELDMENT, JCD',qty:10,type:'Assembly',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'530708-002',desc:'DOCK RECEPTACLE, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'531146-003',desc:'WELDMENT, MANIFOLD, SEND PUMP INPUT',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — DP/Carlos in Vendor_Detail'},
+  {pn:'531153-002',desc:'WELDMENT, MANIFOLD, SEND PUMP OUTLET',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Vendor_Detail data entry error ("True"). Carlos is former vendor — no RFQ sent'},
+  {pn:'531157-003',desc:'WELDMENT, MANIFOLD, RETURN PUMP INLET',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Vendor_Detail data entry error ("True"). Carlos is former vendor — no RFQ sent'},
+  {pn:'531170-003',desc:'WELDMENT, INLINE HEATER, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Vendor_Detail data entry error ("True"). Carlos is former vendor — no RFQ sent'},
+  {pn:'531191-003',desc:'WELDMENT, RETURN MANIFOLD, JCD',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Vendor_Detail data entry error ("True"). Carlos is former vendor — no RFQ sent'},
+  {pn:'531244-001',desc:'WELDMENT, 45 ELBOW, SEND PUMP OUTLET',qty:10,type:'Assembly',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Not on BOM. No vendor assigned. PDF only — no STEP file. Fully unactioned.'},
+  {pn:'531296-001',desc:'PLATE, SEND PUMP ISOLATION, ACETAL',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'sent',d:'Apr 18'},pnm:{s:'not'},note:'✓ JF + ALW both quoted. PNM also in Vendor_Detail — consider adding'},
+  {pn:'531306-001',desc:'BRACKET, INLINE HEATER, 304SS',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'531648-001',desc:'TRACK ROLLER FLANGE, RISER, JCD',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM primary, ECLIPSE also in Vendor_Detail'},
+  {pn:'531723-002',desc:'BRACKET, 3-WAY VALVE MOUNT, JCD',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'531727-003',desc:'BRACKET, AIR RELIEF MOUNT, 3-WAY VALVE',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'531798-001',desc:'ISOLATION MONITORING PANEL, JCD02',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'531819-001',desc:'PLATE, RETURN PUMP ISOLATION, ACETAL',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM + JF both in Vendor_Detail'},
+  {pn:'532724-001',desc:'HOUSING, MAIN LOGIC BOARD, GSE',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM also in Vendor_Detail'},
+  {pn:'532840-001',desc:'SFP RETAINER, MLB, GSE',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'532902-001',desc:'GUIDE CONE W/ INSERTS, JCD, GSE',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — DP or POP in Vendor_Detail. 3D print.'},
+  {pn:'533050-001',desc:'WIRE DUCT 166MM, JCD',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'T also in Vendor_Detail'},
+  {pn:'533061-001',desc:'WIRE DUCT 330MM, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'T is primary per Vendor_Detail'},
+  {pn:'533083-001',desc:'35MM DIN RAIL, ALUMINUM, 164MM',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'T also in Vendor_Detail'},
+  {pn:'533209-001',desc:'GROUND BAR, JCD, GSE',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'PNM also in Vendor_Detail'},
+  {pn:'534117-001',desc:'MLB RETAINER TAB, JCD',qty:20,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'534378-005',desc:'LEFT FILLER W/ INSERTS, RISER, JCD',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ POP missing sub files. No STEP, no RFQ sent.'},
+  {pn:'534378-006',desc:'RIGHT FILLER W/ INSERTS, RISER',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ POP missing sub files. No STEP, no RFQ sent.'},
+  {pn:'534501-001',desc:'BRACKET, SEND PUMP MANIFOLD SUPPORT',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:''},
+  {pn:'544669-003',desc:'NAMEPLATE, JCD02, GSE',qty:20,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ HiTech was sent rev -001. BOM requires -003. Resend correct drawing.'},
+  {pn:'545202-002',desc:'DOCK COVER, TEMPORARY MOCKUP, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — POP in Vendor_Detail. Revised dash from -001.'},
+  {pn:'545227-003',desc:'ELECTRONICS COVER, DOCK ASSY (3D)',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'⚠ Assembly scope unclear (= 548348-002 + 548349-002). Files sent Apr 17 — RFQ not yet sent.'},
+  {pn:'546884-001',desc:'RISER GUIDE, LEFT, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'New PN. HT assigned in Vendor_Detail. STEP sent Apr 14 — no RFQ yet.'},
+  {pn:'546884-002',desc:'RISER GUIDE, RIGHT, JCD',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'New PN. HT assigned in Vendor_Detail. STEP sent Apr 14 — no RFQ yet.'},
+  {pn:'549775-001',desc:'SEAL E STOP INNER PERIMETER DOCK',qty:10,type:'Detail',ht:{s:'not'},jf:{s:'not'},alw:{s:'sent',d:'Apr 17'},pnm:{s:'not'},note:'Gasket/seal — consider a specialist vendor for 2nd quote'},
+  {pn:'551064-001',desc:'COVER HARNESS, INBOARD HATCH PANEL',qty:10,type:'3D Print',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — POP in Vendor_Detail. Files sent Apr 14.'},
+  {pn:'213779-002',desc:'COOLANT FITTING, QUICK CONNECT SAE-14',qty:20,type:'SCD',ht:{s:'not'},jf:{s:'not'},alw:{s:'not'},pnm:{s:'not'},note:'No RFQ sent — ECLIPSE/PNM in Vendor_Detail. SCD type.'},
+  {pn:'514086-001',desc:'SHUNT SPACER, HVDM',qty:20,type:'Detail',ht:{s:'not'},jf:{s:'confirmed',d:'Apr 17–18'},alw:{s:'not'},pnm:{s:'not'},note:'Brand new part. PNM also in Vendor_Detail.'},
+  {pn:'514100-003',desc:'WALL INSULATOR, HVDM',qty:10,type:'Detail',ht:{s:'sent',d:'Apr 10'},jf:{s:'not'},alw:{s:'sent',d:'Apr 17'},pnm:{s:'not'},note:'✓ HT + ALW both quoted — compare prices'},
+];
+
+const V_KEYS = ['ht','jf','alw','pnm'];
+const V_NAMES = {ht:'HiTech',jf:'JF',alw:'ALW',pnm:'PNM'};
+const V_BG = {
+  ht:'rgba(29,111,219,0.07)', jf:'rgba(5,150,105,0.06)',
+  alw:'rgba(217,119,6,0.06)', pnm:'rgba(109,63,201,0.06)'
+};
+const V_BORDER = {
+  ht:'rgba(29,111,219,0.10)', jf:'rgba(5,150,105,0.10)',
+  alw:'rgba(217,119,6,0.12)', pnm:'rgba(109,63,201,0.10)'
+};
+
+function statusPill(s) {
+  if(s==='sent') return '<span class="pill p-amber" style="font-size:9px">Sent — awaiting reply</span>';
+  if(s==='confirmed') return '<span class="pill p-blue" style="font-size:9px">Quote request confirmed</span>';
+  if(s==='quoted') return '<span class="pill p-green" style="font-size:9px">Quote received</span>';
+  return '<span style="color:var(--text3);font-size:10px">—</span>';
+}
+
+function renderCompare(data) {
+  const tb = document.getElementById('compare-tbody');
+  tb.innerHTML = data.map((r, rowIdx) => {
+    // Find lowest price among vendors that have prices
+    const prices = V_KEYS.map(k => r[k].price).filter(p => p !== null && p !== undefined && p !== '');
+    const lowestPrice = prices.length > 0 ? Math.min(...prices.map(Number)) : null;
+    const highestPrice = prices.length > 1 ? Math.max(...prices.map(Number)) : null;
+
+    const vendorCells = V_KEYS.map(k => {
+      const v = r[k];
+      const isNotSent = v.s === 'not';
+      const bgStyle = isNotSent ? 'background:rgba(0,0,0,0.02)' : `background:${V_BG[k]}`;
+      const borderStyle = `border-left:1px solid ${V_BORDER[k]}`;
+      const priceVal = v.price !== null && v.price !== undefined ? v.price : '';
+      const isLowest = priceVal !== '' && Number(priceVal) === lowestPrice;
+      const isHighest = prices.length > 1 && priceVal !== '' && Number(priceVal) === highestPrice;
+      const priceBg = isLowest ? 'background:rgba(5,150,105,0.12);border:1px solid var(--green)' : isHighest ? 'background:rgba(220,38,38,0.08);border:1px solid var(--red)' : '';
+
+      const statusCell = `<td style="${bgStyle};${borderStyle};padding:6px 8px;white-space:nowrap">${isNotSent ? '<span style="color:var(--text3);font-size:10px">—</span>' : statusPill(v.s) + (v.d ? `<div style="font-size:9px;color:var(--text3);margin-top:2px">${v.d}</div>` : '')}</td>`;
+      const priceCell = `<td style="${bgStyle};padding:4px 6px">
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:11px;color:var(--text3)">$</span>
+          <input type="number" min="0" step="0.01" placeholder="—"
+            value="${priceVal}"
+            data-row="${rowIdx}" data-vendor="${k}"
+            oninput="updatePrice(${rowIdx},'${k}',this.value)"
+            style="width:70px;background:${isNotSent?'#f5f6f8':'#ffffff'};border:1px solid ${isNotSent?'var(--border)':'var(--border2)'};border-radius:4px;padding:4px 6px;color:${isNotSent?'var(--text3)':'var(--text)'};font-family:var(--mono);font-size:11px;outline:none;${priceBg}" ${isNotSent ? 'disabled' : ''}>
+        </div>
+      </td>`;
+      return statusCell + priceCell;
+    }).join('');
+
+    const winnerVendor = prices.length > 0 ? V_NAMES[V_KEYS.find(k => r[k].price !== null && Number(r[k].price) === lowestPrice)] || '—' : '—';
+    const winnerCell = prices.length > 0
+      ? `<span class="pill p-green" style="font-size:10px">${winnerVendor}</span>`
+      : `<span style="color:var(--text3);font-size:10px">Pending</span>`;
+
+    return `<tr data-flag="${r.note && r.note.startsWith('⚠') ? 'flag' : r.note && r.note.startsWith('✓') ? 'multi' : 'none'}" data-multi="${V_KEYS.filter(k=>r[k].s!=='not').length > 1 ? 'y':'n'}" data-winner="${prices.length>0?'y':'n'}">
+      <td><span class="pn">${r.pn}</span></td>
+      <td style="font-size:11px;color:var(--text2)">${r.desc}</td>
+      <td style="text-align:center;font-family:var(--mono);font-size:11px">${r.qty}</td>
+      <td><span class="pill p-gray" style="font-size:9px">${r.type}</span></td>
+      ${vendorCells}
+      <td style="text-align:center">${winnerCell}</td>
+      <td style="font-size:10px;color:${r.note&&r.note.startsWith('⚠')?'var(--amber)':r.note&&r.note.startsWith('✓')?'var(--green)':'var(--text3)'};max-width:160px;line-height:1.4">${r.note||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Store prices in memory
+const PRICES = {};
+function updatePrice(rowIdx, vendor, val) {
+  const key = rowIdx + '_' + vendor;
+  PRICES[key] = val;
+  COMPARE_DATA[rowIdx][vendor].price = val === '' ? null : parseFloat(val);
+  renderCompare(getCFilteredData());
+}
+
+let cFilter = 'all';
+function getCFilteredData() {
+  if(cFilter === 'all') return COMPARE_DATA;
+  if(cFilter === 'multi') return COMPARE_DATA.filter(r => V_KEYS.filter(k=>r[k].s!=='not').length > 1);
+  if(cFilter === 'flag') return COMPARE_DATA.filter(r => r.note && r.note.startsWith('⚠'));
+  if(cFilter === 'winner') return COMPARE_DATA.filter(r => V_KEYS.some(k=>r[k].price!==null));
+  return COMPARE_DATA;
+}
+function setCFilter(f, btn) {
+  cFilter = f;
+  document.querySelectorAll('#page-conflicts .fbtn').forEach(b => b.className = 'fbtn');
+  btn.className = f==='flag' ? 'fbtn active-amber' : f==='winner' ? 'fbtn active-green' : 'fbtn active';
+  renderCompare(getCFilteredData());
+}
+
+renderCompare(COMPARE_DATA);
+
+// Navigation
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  if(id === 'parts') { renderParts(PARTS_DATA); updateCount(); }
+  if(id === 'bom') { buildBomTree(); }
+}
+</script>
+</body>
+</html>
