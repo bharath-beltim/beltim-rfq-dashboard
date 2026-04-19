@@ -1,0 +1,4 @@
+{
+  "last_gmail_check_iso": "2026-04-10T00:00:00-07:00",
+  "note": "Initial value — set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run."
+}
