@@ -236,7 +236,7 @@ tr:hover td { background: rgba(0,0,0,0.03); }
   </div>
 
   <div class="nav-section" style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border)">
-    <div style="padding:0 10px;font-size:11px;color:var(--text3)">Last synced<br><span style="color:var(--text2);font-family:var(--mono)">Apr 18, 2026</span></div>
+    <div style="padding:0 10px;font-size:11px;color:var(--text3)">Last synced<br><span id="last-synced" style="color:var(--text2);font-family:var(--mono)">—</span></div>
   </div>
 </aside>
 
@@ -258,11 +258,11 @@ tr:hover td { background: rgba(0,0,0,0.03); }
   </div>
 
   <div class="metrics">
-    <div class="metric"><div class="lbl">Total parts</div><div class="val blue">70</div></div>
+    <div class="metric"><div class="lbl">Total parts</div><div class="val blue" id="m-total">—</div></div>
     <div class="metric"><div class="lbl">On BOM tree</div><div class="val green">69</div></div>
     <div class="metric"><div class="lbl">No Dec. quote history</div><div class="val amber">17</div></div>
-    <div class="metric"><div class="lbl">Action blockers</div><div class="val red">7</div></div>
-    <div class="metric"><div class="lbl">No RFQ sent yet</div><div class="val amber">18</div></div>
+    <div class="metric"><div class="lbl">Action blockers</div><div class="val red" id="m-blockers">—</div></div>
+    <div class="metric"><div class="lbl">No RFQ sent yet</div><div class="val amber" id="m-norfq">—</div></div>
   </div>
 
   <div style="background:rgba(29,111,219,0.05);border:1px solid rgba(29,111,219,0.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#374151;line-height:1.7">
@@ -279,6 +279,19 @@ tr:hover td { background: rgba(0,0,0,0.03); }
       <div class="alert-item"><strong>530007-002, 531153-002, 531157-003, 531170-003, 531191-003</strong> — Vendor_Detail shows "True" (checkbox error) for all 5. No valid vendor. Carlos is former vendor but no RFQ sent.</div>
       <div class="alert-item"><strong>531244-001</strong> WELDMENT 45 ELBOW — Added Apr 14. Not on BOM, no vendor, PDF only (no STEP). Completely unactioned.</div>
       <div class="alert-item"><strong>534378-005/-006</strong> LEFT/RIGHT FILLER — Vendor_Detail flags "POP missing sub files." No STEP files, no RFQ email sent.</div>
+    </div>
+  </div>
+
+  <div class="card" id="recent-updates-card" style="margin-bottom:16px;display:none">
+    <div class="card-hdr">
+      <h3>Recent auto-updates</h3>
+      <span class="cnt" id="ru-changes">0 changes</span>
+    </div>
+    <div style="padding:14px 16px">
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px">
+        Last Gmail sweep: <span id="ru-ts">—</span>
+      </div>
+      <div id="ru-summary" style="font-size:12px;color:var(--text2);line-height:1.6">—</div>
     </div>
   </div>
 
@@ -377,126 +390,8 @@ tr:hover td { background: rgba(0,0,0,0.03); }
   </div>
 
   <div class="card">
-    <div class="card-hdr"><h3>Outbound RFQs — Joby project specific</h3><span class="cnt">4 vendors contacted</span></div>
-    <div class="timeline">
-
-      <div class="tl-item">
-        <div>
-          <div class="tl-date">Apr 10, 2026</div>
-          <div style="margin-top:4px"><span class="pill p-green">Sent</span></div>
-        </div>
-        <div>
-          <div class="tl-vendor">HiTech Metal Fab (Jorge + Ricardo)</div>
-          <div class="tl-email">Jorgef@hitechmetalfab.com · ricardos@hitechmetalfab.com</div>
-          <div class="tl-parts">
-            20 parts assigned as HT in Vendor_Detail. Laura forwarded Meliza's original RFQ with added notes:
-            <div class="pns">
-              <span class="pn-tag">518643-002</span><span class="pn-tag">518656-002</span><span class="pn-tag">521560-002</span>
-              <span class="pn-tag">528356-002</span><span class="pn-tag">529320-002</span><span class="pn-tag">529797-001</span>
-              <span class="pn-tag">529799-002</span><span class="pn-tag">529856-002</span><span class="pn-tag">529931-001</span>
-              <span class="pn-tag">529933-001</span><span class="pn-tag">529981-003</span><span class="pn-tag">530049-002</span>
-              <span class="pn-tag">530484-001</span><span class="pn-tag">531306-001</span><span class="pn-tag">531723-002</span>
-              <span class="pn-tag">531727-003</span><span class="pn-tag">531798-001</span><span class="pn-tag">534117-001</span>
-              <span class="pn-tag">534501-001</span><span class="pn-tag">544669-001</span>
-            </div>
-          </div>
-          <div class="tl-note">⚠ 518643-002: material on drawing is G90 but G60 deviation confirmed — resend updated drawing · 529320-002: HT never quoted before, tolerance deviation pending Brett · 544669-001: WRONG REV sent — BOM requires -003, must correct before quoting</div>
-        </div>
-        <div><span class="pill p-amber">3 flags</span></div>
-      </div>
-
-      <div class="tl-item">
-        <div>
-          <div class="tl-date">Apr 17, 2026</div>
-          <div style="margin-top:4px"><span class="pill p-green">Quote request confirmed</span></div>
-        </div>
-        <div>
-          <div class="tl-vendor">JF Precision (Jose Fernandez)</div>
-          <div class="tl-email">jose@jfprecision.com · office.jf@jfprecision.com</div>
-          <div class="tl-parts">
-            JF-assigned parts from Vendor_Detail. Response received same day: "RFQ received, will review."
-            <div class="pns">
-              <span class="pn-tag">514086-001</span><span class="pn-tag">518651-002</span><span class="pn-tag">518789-002</span>
-              <span class="pn-tag">518790-002</span><span class="pn-tag">521561-002</span><span class="pn-tag">529736-001</span>
-              <span class="pn-tag">529980-002</span><span class="pn-tag">530052-001</span><span class="pn-tag">530058-001</span>
-              <span class="pn-tag">530150-001</span><span class="pn-tag">530152-001</span><span class="pn-tag">530194-001</span>
-              <span class="pn-tag">530708-002</span><span class="pn-tag">531296-001</span><span class="pn-tag">531648-001</span>
-              <span class="pn-tag">531819-001</span><span class="pn-tag">532724-001</span><span class="pn-tag">532840-001</span>
-              <span class="pn-tag">533050-001</span><span class="pn-tag">533083-001</span><span class="pn-tag">533209-001</span>
-            </div>
-          </div>
-          <div class="tl-note">⚠ 531296-001 also sent to ALW Apr 18 — conflicting vendor. 518651-002: Vendor_Detail has "HT?" note.</div>
-        </div>
-        <div><span class="pill p-amber">2 flags</span></div>
-      </div>
-
-      <div class="tl-item">
-        <div>
-          <div class="tl-date">Apr 17–18, 2026</div>
-          <div style="margin-top:4px"><span class="pill p-amber">Partial</span></div>
-        </div>
-        <div>
-          <div class="tl-vendor">Advanced Laser (Rick)</div>
-          <div class="tl-email">rick@adv-laser.com</div>
-          <div class="tl-parts">
-            5 parts on Apr 17, then 1 added Apr 18:
-            <div class="pns">
-              <span class="pn-tag">514100-003</span><span class="pn-tag">518656-002</span><span class="pn-tag">529799-002</span>
-              <span class="pn-tag">530113-001</span><span class="pn-tag">549775-001</span>
-              <span class="pn-tag" style="border-color:var(--amber);color:var(--amber)">531296-001 (added Apr 18)</span>
-            </div>
-          </div>
-          <div class="tl-note">✓ 518656-002 and 529799-002 also quoted by HiTech — good, competitive sourcing. 531296-001 also quoted by JF — good, competitive sourcing. See Price Comparison tab to track results.</div>
-        </div>
-        <div><span class="pill p-red">3 duplicates</span></div>
-      </div>
-
-      <div class="tl-item">
-        <div>
-          <div class="tl-date">Not sent yet</div>
-          <div style="margin-top:4px"><span class="pill p-red">Missing</span></div>
-        </div>
-        <div>
-          <div class="tl-vendor">POP / 3D Print Vendor</div>
-          <div class="tl-email">Vendor_Detail assigns these to POP — no email found</div>
-          <div class="tl-parts">
-            6 parts need RFQ to 3D print vendor:
-            <div class="pns">
-              <span class="pn-tag" style="color:var(--red)">532902-001</span>
-              <span class="pn-tag" style="color:var(--red)">545227-003</span>
-              <span class="pn-tag" style="color:var(--red)">534378-005</span>
-              <span class="pn-tag" style="color:var(--red)">534378-006</span>
-              <span class="pn-tag" style="color:var(--red)">551064-001</span>
-              <span class="pn-tag" style="color:var(--red)">518789-002</span>
-            </div>
-          </div>
-          <div class="tl-note">⚠ 534378-005 and -006 flagged "POP missing sub files" in Vendor_Detail. 545227-003 = assembly of 548348-002 + 548349-002 (3D printed). Files sent by Brett Apr 17 but no external RFQ yet.</div>
-        </div>
-        <div><span class="pill p-red">Action needed</span></div>
-      </div>
-
-      <div class="tl-item">
-        <div>
-          <div class="tl-date">Not sent yet</div>
-          <div style="margin-top:4px"><span class="pill p-red">Missing</span></div>
-        </div>
-        <div>
-          <div class="tl-vendor">Carlos Weld / CARLOS vendor</div>
-          <div class="tl-email">Former vendor for manifold weldments — no new RFQ found</div>
-          <div class="tl-parts">
-            5 manifold weldment assemblies — formerly made by "CARLOS":
-            <div class="pns">
-              <span class="pn-tag" style="color:var(--red)">531146-003</span><span class="pn-tag" style="color:var(--red)">531153-002</span>
-              <span class="pn-tag" style="color:var(--red)">531157-003</span><span class="pn-tag" style="color:var(--red)">531170-003</span>
-              <span class="pn-tag" style="color:var(--red)">531191-003</span>
-            </div>
-          </div>
-          <div class="tl-note">⚠ Vendor_Detail shows "True" (checkbox error) — not a real vendor code. No valid vendor assigned. These are all Bonded/Fastened welded assemblies. Need RFQ to Carlos or alternate.</div>
-        </div>
-        <div><span class="pill p-red">Data error + no RFQ</span></div>
-      </div>
-
-    </div>
+    <div class="card-hdr"><h3>Outbound RFQs — Joby project specific</h3><span class="cnt" id="emails-vendor-count">— vendors contacted</span></div>
+    <div class="timeline" id="emails-timeline"></div>
   </div>
 </div>
 
@@ -553,10 +448,10 @@ tr:hover td { background: rgba(0,0,0,0.03); }
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-    <div class="metric"><div class="lbl">Parts in comparison</div><div class="val blue">70</div></div>
-    <div class="metric"><div class="lbl">Quotes received</div><div class="val red">0</div></div>
-    <div class="metric"><div class="lbl">Quotes pending</div><div class="val amber">4 vendors</div></div>
-    <div class="metric"><div class="lbl">Winners selected</div><div class="val red">0</div></div>
+    <div class="metric"><div class="lbl">Parts in comparison</div><div class="val blue" id="cm-parts">—</div></div>
+    <div class="metric"><div class="lbl">Quotes received</div><div class="val red" id="cm-quoted">—</div></div>
+    <div class="metric"><div class="lbl">Parts awaiting quote</div><div class="val amber" id="cm-pending">—</div></div>
+    <div class="metric"><div class="lbl">Winners selected</div><div class="val red" id="cm-winners">—</div></div>
   </div>
 
   <div style="background:rgba(29,111,219,0.04);border:1px solid rgba(29,111,219,0.18);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--text2);line-height:1.7">
@@ -1263,6 +1158,7 @@ function updatePrice(rowIdx, vendor, val) {
   PRICES[key] = val;
   COMPARE_DATA[rowIdx][vendor].price = val === '' ? null : parseFloat(val);
   renderCompare(getCFilteredData());
+  if (typeof updateMetrics === 'function') updateMetrics();
 }
 
 let cFilter = 'all';
@@ -1291,6 +1187,207 @@ function showPage(id, btn) {
   if(id === 'parts') { renderParts(PARTS_DATA); updateCount(); }
   if(id === 'bom') { buildBomTree(); }
 }
+
+/* =========================================================================
+   AUTO-UPDATED BLOCKS — rewritten by the scheduled Gmail sweep task
+   ========================================================================= */
+
+// LAST_CHECK_DATA is patched each sweep. `last_synced_display` drives the
+// sidebar header; `last_run_summary` drives the "Recent auto-updates" card.
+const LAST_CHECK_DATA = {
+  last_synced_display: "Apr 18, 2026",
+  last_gmail_check_iso: "2026-04-18T00:00:00Z",
+  last_run_summary: "",
+  last_run_changes: 0
+};
+
+// EMAILS_DATA drives the Email RFQs timeline. Each entry is one vendor row.
+// The sweep task may append a new entry when a fresh reply arrives, or mutate
+// an existing entry's `status`, `statusPill`, `flagPill`, or `note`.
+const EMAILS_DATA = [
+  {
+    date: "Apr 10, 2026",
+    statusPill: {tone:"green", text:"Sent"},
+    vendor: "HiTech Metal Fab (Jorge + Ricardo)",
+    email: "Jorgef@hitechmetalfab.com · ricardos@hitechmetalfab.com",
+    intro: "20 parts assigned as HT in Vendor_Detail. Laura forwarded Meliza's original RFQ with added notes:",
+    parts: [
+      {pn:"518643-002"},{pn:"518656-002"},{pn:"521560-002"},{pn:"528356-002"},
+      {pn:"529320-002"},{pn:"529797-001"},{pn:"529799-002"},{pn:"529856-002"},
+      {pn:"529931-001"},{pn:"529933-001"},{pn:"529981-003"},{pn:"530049-002"},
+      {pn:"530484-001"},{pn:"531306-001"},{pn:"531723-002"},{pn:"531727-003"},
+      {pn:"531798-001"},{pn:"534117-001"},{pn:"534501-001"},{pn:"544669-001"}
+    ],
+    note: "⚠ 518643-002: material on drawing is G90 but G60 deviation confirmed — resend updated drawing · 529320-002: HT never quoted before, tolerance deviation pending Brett · 544669-001: WRONG REV sent — BOM requires -003, must correct before quoting",
+    flagPill: {tone:"amber", text:"3 flags"}
+  },
+  {
+    date: "Apr 17, 2026",
+    statusPill: {tone:"green", text:"Quote request confirmed"},
+    vendor: "JF Precision (Jose Fernandez)",
+    email: "jose@jfprecision.com · office.jf@jfprecision.com",
+    intro: "JF-assigned parts from Vendor_Detail. Response received same day: \"RFQ received, will review.\"",
+    parts: [
+      {pn:"514086-001"},{pn:"518651-002"},{pn:"518789-002"},{pn:"518790-002"},
+      {pn:"521561-002"},{pn:"529736-001"},{pn:"529980-002"},{pn:"530052-001"},
+      {pn:"530058-001"},{pn:"530150-001"},{pn:"530152-001"},{pn:"530194-001"},
+      {pn:"530708-002"},{pn:"531296-001"},{pn:"531648-001"},{pn:"531819-001"},
+      {pn:"532724-001"},{pn:"532840-001"},{pn:"533050-001"},{pn:"533083-001"},
+      {pn:"533209-001"}
+    ],
+    note: "⚠ 531296-001 also sent to ALW Apr 18 — conflicting vendor. 518651-002: Vendor_Detail has \"HT?\" note.",
+    flagPill: {tone:"amber", text:"2 flags"}
+  },
+  {
+    date: "Apr 17–18, 2026",
+    statusPill: {tone:"amber", text:"Partial"},
+    vendor: "Advanced Laser (Rick)",
+    email: "rick@adv-laser.com",
+    intro: "5 parts on Apr 17, then 1 added Apr 18:",
+    parts: [
+      {pn:"514100-003"},{pn:"518656-002"},{pn:"529799-002"},{pn:"530113-001"},
+      {pn:"549775-001"},{pn:"531296-001 (added Apr 18)", highlight:"amber"}
+    ],
+    note: "✓ 518656-002 and 529799-002 also quoted by HiTech — good, competitive sourcing. 531296-001 also quoted by JF — good, competitive sourcing. See Price Comparison tab to track results.",
+    flagPill: {tone:"red", text:"3 duplicates"}
+  },
+  {
+    date: "Not sent yet",
+    statusPill: {tone:"red", text:"Missing"},
+    vendor: "POP / 3D Print Vendor",
+    email: "Vendor_Detail assigns these to POP — no email found",
+    intro: "6 parts need RFQ to 3D print vendor:",
+    parts: [
+      {pn:"532902-001", highlight:"red"},{pn:"545227-003", highlight:"red"},
+      {pn:"534378-005", highlight:"red"},{pn:"534378-006", highlight:"red"},
+      {pn:"551064-001", highlight:"red"},{pn:"518789-002", highlight:"red"}
+    ],
+    note: "⚠ 534378-005 and -006 flagged \"POP missing sub files\" in Vendor_Detail. 545227-003 = assembly of 548348-002 + 548349-002 (3D printed). Files sent by Brett Apr 17 but no external RFQ yet.",
+    flagPill: {tone:"red", text:"Action needed"}
+  },
+  {
+    date: "Not sent yet",
+    statusPill: {tone:"red", text:"Missing"},
+    vendor: "Carlos Weld / CARLOS vendor",
+    email: "Former vendor for manifold weldments — no new RFQ found",
+    intro: "5 manifold weldment assemblies — formerly made by \"CARLOS\":",
+    parts: [
+      {pn:"531146-003", highlight:"red"},{pn:"531153-002", highlight:"red"},
+      {pn:"531157-003", highlight:"red"},{pn:"531170-003", highlight:"red"},
+      {pn:"531191-003", highlight:"red"}
+    ],
+    note: "⚠ Vendor_Detail shows \"True\" (checkbox error) — not a real vendor code. No valid vendor assigned. These are all Bonded/Fastened welded assemblies. Need RFQ to Carlos or alternate.",
+    flagPill: {tone:"red", text:"Data error + no RFQ"}
+  }
+];
+
+/* =========================================================================
+   DYNAMIC WIRING — derives UI from the data blocks above
+   ========================================================================= */
+
+function pillClass(tone) {
+  return tone === 'green' ? 'p-green'
+       : tone === 'amber' ? 'p-amber'
+       : tone === 'blue'  ? 'p-blue'
+       : tone === 'red'   ? 'p-red'
+       : 'p-gray';
+}
+
+function renderEmailsTimeline() {
+  const host = document.getElementById('emails-timeline');
+  if (!host) return;
+  host.innerHTML = EMAILS_DATA.map(e => {
+    const partTags = e.parts.map(p => {
+      const color = p.highlight === 'red'
+        ? 'color:var(--red)'
+        : p.highlight === 'amber'
+          ? 'border-color:var(--amber);color:var(--amber)'
+          : '';
+      return `<span class="pn-tag"${color ? ` style="${color}"` : ''}>${p.pn}</span>`;
+    }).join('');
+    const flag = e.flagPill
+      ? `<div><span class="pill ${pillClass(e.flagPill.tone)}">${e.flagPill.text}</span></div>`
+      : '<div></div>';
+    return `
+      <div class="tl-item">
+        <div>
+          <div class="tl-date">${e.date}</div>
+          <div style="margin-top:4px"><span class="pill ${pillClass(e.statusPill.tone)}">${e.statusPill.text}</span></div>
+        </div>
+        <div>
+          <div class="tl-vendor">${e.vendor}</div>
+          <div class="tl-email">${e.email}</div>
+          <div class="tl-parts">
+            ${e.intro}
+            <div class="pns">${partTags}</div>
+          </div>
+          ${e.note ? `<div class="tl-note">${e.note}</div>` : ''}
+        </div>
+        ${flag}
+      </div>`;
+  }).join('');
+  const vc = document.getElementById('emails-vendor-count');
+  if (vc) vc.textContent = `${EMAILS_DATA.length} vendors contacted`;
+}
+
+function updateMetrics() {
+  const total = COMPARE_DATA.length;
+  const norfq = COMPARE_DATA.filter(r => V_KEYS.every(k => r[k].s === 'not')).length;
+  const blockers = COMPARE_DATA.filter(r => r.note && r.note.startsWith('⚠')).length;
+  const quoted = COMPARE_DATA.filter(r => V_KEYS.some(k => r[k].s === 'quoted')).length;
+  const pending = COMPARE_DATA.filter(r =>
+    V_KEYS.some(k => r[k].s === 'sent' || r[k].s === 'confirmed') &&
+    !V_KEYS.some(k => r[k].s === 'quoted')
+  ).length;
+  const winners = COMPARE_DATA.filter(r =>
+    V_KEYS.some(k => r[k].price !== null && r[k].price !== undefined && r[k].price !== '')
+  ).length;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('m-total', total);
+  set('m-blockers', blockers);
+  set('m-norfq', norfq);
+  set('cm-parts', total);
+  set('cm-quoted', quoted);
+  set('cm-pending', pending);
+  set('cm-winners', winners);
+
+  // Recolor quoted/winners: green when > 0, red when 0
+  const recolor = (id, n) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('red', 'green');
+    el.classList.add(n > 0 ? 'green' : 'red');
+  };
+  recolor('cm-quoted', quoted);
+  recolor('cm-winners', winners);
+}
+
+function renderLastCheck() {
+  const lsEl = document.getElementById('last-synced');
+  if (lsEl && LAST_CHECK_DATA.last_synced_display) {
+    lsEl.textContent = LAST_CHECK_DATA.last_synced_display;
+  }
+  const card = document.getElementById('recent-updates-card');
+  if (!card) return;
+  const hasSummary = LAST_CHECK_DATA.last_run_summary && LAST_CHECK_DATA.last_run_summary.trim() !== '';
+  if (!hasSummary) return;
+  card.style.display = '';
+  const ts = document.getElementById('ru-ts');
+  if (ts) ts.textContent = LAST_CHECK_DATA.last_gmail_check_iso || '—';
+  const s = document.getElementById('ru-summary');
+  if (s) s.textContent = LAST_CHECK_DATA.last_run_summary;
+  const c = document.getElementById('ru-changes');
+  if (c) {
+    const n = LAST_CHECK_DATA.last_run_changes || 0;
+    c.textContent = `${n} change${n === 1 ? '' : 's'}`;
+  }
+}
+
+// Initial wiring.
+renderEmailsTimeline();
+updateMetrics();
+renderLastCheck();
 </script>
 </body>
 </html>
