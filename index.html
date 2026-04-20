@@ -205,7 +205,7 @@ tr:hover td { background: rgba(0,0,0,0.03); }
     </button>
     <button class="nav-item" onclick="showPage('emails', this)">
       <span class="nav-dot" style="background:var(--green)"></span> Email RFQs
-      <span class="nav-count">4</span>
+      <span class="nav-count" id="nav-emails">—</span>
     </button>
   </div>
 
@@ -217,11 +217,11 @@ tr:hover td { background: rgba(0,0,0,0.03); }
     </button>
     <button class="nav-item" onclick="showPage('conflicts', this)">
       <span class="nav-dot" style="background:var(--red)"></span> Price Comparison
-      <span class="nav-count" style="background:rgba(220,38,38,0.08);color:var(--red)">29</span>
+      <span class="nav-count" id="nav-compare" style="background:rgba(220,38,38,0.08);color:var(--red)">—</span>
     </button>
     <button class="nav-item" onclick="showPage('norfq', this)">
       <span class="nav-dot" style="background:var(--amber)"></span> No RFQ Sent
-      <span class="nav-count" style="background:rgba(217,119,6,0.12);color:var(--amber)">18</span>
+      <span class="nav-count" id="nav-norfq" style="background:rgba(217,119,6,0.12);color:var(--amber)">—</span>
     </button>
   </div>
 
@@ -1478,6 +1478,11 @@ function updateMetrics() {
   set('cm-quoted', quoted);
   set('cm-pending', pending);
   set('cm-winners', winners);
+
+  // Sidebar nav counters — derived from the same data
+  set('nav-emails', EMAILS_DATA.length);
+  set('nav-compare', total - norfq);   // parts with at least one vendor action
+  set('nav-norfq', norfq);
 
   // Recolor quoted/winners: green when > 0, red when 0
   const recolor = (id, n) => {
