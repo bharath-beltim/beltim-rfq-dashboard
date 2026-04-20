@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-20T03:43:42Z",
+  "last_gmail_check_iso": "2026-04-20T05:22:58Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Scheduled sweep: 0 new vendor replies since prior cutoff (2026-04-19T16:10:25Z). Searched HiTech, JF Precision, ALW domains \u2014 no inbound Joby-RFQ messages newer than the cutoff. HiTech still owes: 544669-003 redline, 530117-002 hw scope. JF (Jose) still working on 21-part quote. ALW (Rick) no Joby reply yet.",
+  "last_run_summary": "Scheduled sweep: 0 new vendor replies since prior cutoff (2026-04-20T03:43:42Z). Searched HiTech, JF Precision, ALW domains \u2014 no inbound Joby-RFQ messages newer than the cutoff. JF Precision (Jose) confirmed receipt Apr 18, still working on 21-part quote. HiTech and ALW (Rick) have not replied.",
   "last_run_changes": 0
 }
