@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-20T16:10:47Z",
+  "last_gmail_check_iso": "2026-04-20T23:35:38Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "0 inbound Joby replies; 2 outbound Joby RFQs after cutoff (tec already captured by prior manual commit; eclipsemf is a NEW vendor \u2014 needs V_KEYS/V_NAMES expansion). HiTech replied on ECC-ATP thread (non-Joby PNs \u2014 skipped). ALW Rick still silent on Joby RFQs.",
-  "last_run_changes": 0
+  "last_run_summary": "1 inbound reply (TrueForm confirmed 7 parts); 1 inbound no-quote (PNM declined 11 parts); 1 new vendor detected (Silicon Valley Precision \u2014 needs V_KEYS expansion); 1 empty JF reply skipped",
+  "last_run_changes": 29
 }
