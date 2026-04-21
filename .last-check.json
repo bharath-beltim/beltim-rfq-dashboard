@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-20T23:35:38Z",
+  "last_gmail_check_iso": "2026-04-21T16:06:07Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "1 inbound reply (TrueForm confirmed 7 parts); 1 inbound no-quote (PNM declined 11 parts); 1 new vendor detected (Silicon Valley Precision \u2014 needs V_KEYS expansion); 1 empty JF reply skipped",
-  "last_run_changes": 29
+  "last_run_summary": "0 new outbound Joby RFQs since prior cutoff; 1 new inbound reply (Eclipse MF receipt confirmation on 8 parts); 0 prices; 0 flags; 1 new vendor detected (Eclipse MF)",
+  "last_run_changes": 0
 }
