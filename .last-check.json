@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-21T16:06:07Z",
+  "last_gmail_check_iso": "2026-04-22T04:47:52Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "0 new outbound Joby RFQs since prior cutoff; 1 new inbound reply (Eclipse MF receipt confirmation on 8 parts); 0 prices; 0 flags; 1 new vendor detected (Eclipse MF)",
-  "last_run_changes": 0
+  "last_run_summary": "4 inbound quotes (ALW, POP, DIP, TrueForm) with attached price files - 22 status confirmations, 0 inline prices extractable, 5 flags for manual price entry, 1 no-quote (ALW 549775-001)",
+  "last_run_changes": 37
 }
