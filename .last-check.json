@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-22T04:47:52Z",
+  "last_gmail_check_iso": "2026-04-22T16:14:16Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "4 inbound quotes (ALW, POP, DIP, TrueForm) with attached price files - 22 status confirmations, 0 inline prices extractable, 5 flags for manual price entry, 1 no-quote (ALW 549775-001)",
-  "last_run_changes": 37
+  "last_run_summary": "Sweep tick \u2014 1 DIP quote re-send on Apr 22 (revisions added, same prices in attachment; DIP parts already confirmed) and 2 Eclipse/Joby clarification questions (non-quote, Category D). No new statuses, prices, or vendor key additions required since prior cutoff 2026-04-22T04:47:52Z.",
+  "last_run_changes": 0
 }
