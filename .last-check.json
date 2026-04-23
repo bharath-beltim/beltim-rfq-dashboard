@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-22T16:14:16Z",
+  "last_gmail_check_iso": "2026-04-23T16:10:44Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Sweep tick \u2014 1 DIP quote re-send on Apr 22 (revisions added, same prices in attachment; DIP parts already confirmed) and 2 Eclipse/Joby clarification questions (non-quote, Category D). No new statuses, prices, or vendor key additions required since prior cutoff 2026-04-22T04:47:52Z.",
-  "last_run_changes": 0
+  "last_run_summary": "1 inbound vendor reply (Swissmeca/Doug Apr 23 \u2014 says sent quotes to Laura separately). 3 status updates (swm: sent-confirmed). 0 extractable prices. 1 flag for manual price extraction. Category D: POP follow-up, TechMetal PO confirm.",
+  "last_run_changes": 6
 }
