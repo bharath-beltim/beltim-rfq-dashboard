@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-27T15:01:08Z",
+  "last_gmail_check_iso": "2026-04-27T16:11:04Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "1 inbound POP confirmation (518789-002), 1 outbound HiTech RFQ add for 531296-001 (and 530113-001 re-send, already sent), 1 new vendor SVP (Silicon Valley Precision) detected for 528072-003 + 530082-002 \u2014 add to V_KEYS manually",
-  "last_run_changes": 2
+  "last_run_summary": "Inbound vendor threads: 0. Outbound RFQ threads (new): 0. Post-cutoff messages with JCD02 part numbers: 0. Non-JCD02 threads scanned (carbon fiber composite, internal, ME-06270): 5 \u2014 no dashboard changes needed.",
+  "last_run_changes": 0
 }
