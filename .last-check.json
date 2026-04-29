@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-28T23:10:46Z",
+  "last_gmail_check_iso": "2026-04-29T17:21:32Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound vendor threads (post-cutoff): 5 \u2014 JF ME-06622 (non-JCD02, Cat D), PNM Quotation #15772 (PN 417-00217 not in COMPARE_DATA, Cat D), PNM PO Status Update (Cat D), POP 518789-002 (logistics discussion, no price in body, Cat D), JF PTV2 Fixture (non-JCD02, Cat D). Outbound JCD02 RFQs (post-cutoff): 0. Extractable prices: 0. No dashboard changes needed.",
+  "last_run_summary": "Inbound threads scanned (post-cutoff): 2 \u2014 JF RE: Quote ME-06622 (RIM foam, non-JCD02, Cat D), NEOTech Joby BTP-26-0016311 (Beltim-as-vendor direction, Cat D). Outbound JCD02 RFQs (post-cutoff): 0. Extractable prices: 0. No dashboard changes needed.",
   "last_run_changes": 0
 }
