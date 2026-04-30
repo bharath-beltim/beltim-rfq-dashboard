@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-29T23:10:44Z",
+  "last_gmail_check_iso": "2026-04-30T16:13:47Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound JCD02 vendor threads (post-cutoff): 0. Outbound JCD02 RFQs (post-cutoff): 1 \u2014 529320-002 to Eclipse Mfg (eclipsemf.com) Apr 29, Joe replied same day checking feasibility (Cat D). Eclipse is NEW vendor not in V_KEYS. No extractable prices. No dashboard changes.",
+  "last_run_summary": "Inbound JCD02 vendor threads (post-cutoff): 0. Outbound JCD02 RFQs (post-cutoff): 0. Non-quote vendor messages: 2 (HiTech packing slip PO 4552 Cat D; TechnoMetal TMDI delivery confirmation Cat D). No dashboard changes.",
   "last_run_changes": 0
 }
