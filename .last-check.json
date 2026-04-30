@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-30T16:13:47Z",
+  "last_gmail_check_iso": "2026-04-30T23:10:08Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound JCD02 vendor threads (post-cutoff): 0. Outbound JCD02 RFQs (post-cutoff): 0. Non-quote vendor messages: 2 (HiTech packing slip PO 4552 Cat D; TechnoMetal TMDI delivery confirmation Cat D). No dashboard changes.",
+  "last_run_summary": "Inbound JCD02 vendor threads (post-cutoff): 3 (HiTech expedite confirm Cat-D; PNM ME-06503 ack Cat-D; TrueForm lead-time reply Cat-D). Outbound JCD02 RFQs (post-cutoff): 0. Smartsheet notifications from Joby for 530077-004/530484-001/530007-002 (informational only). No extractable prices or status changes.",
   "last_run_changes": 0
 }
