@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-05-01T13:07:49Z",
+  "last_gmail_check_iso": "2026-05-01T20:12:38Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound threads scanned (post-cutoff): 1 (HiTech Gilbertg PO-4588 expedite update \u2014 production delivery dates for ME06049/B and ME-06232/D, not Joby JCD02 RFQ parts, Cat-D). Outbound Joby JCD02 RFQs (post-cutoff): 0. No extractable prices or status changes.",
+  "last_run_summary": "Inbound threads scanned (post-cutoff): 2 (JF Precision packing slip request for PO-4607Rev1 \u2014 Cat-D; HiTech Shipping packing slip request for PO-4588 \u2014 Cat-D). Outbound Joby JCD02 RFQs (post-cutoff): 0. No extractable prices or status changes. NOTE: TrueForm (Scott Streeter) sent quote PDFs on Apr 22 and Apr 28 for 530007-002, 530061-001, 530077-004, 531153-002, 531157-003, 531170-003, 531191-003 \u2014 prices in PDF attachments, not inline. Requires manual review.",
   "last_run_changes": 0
 }
