@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-04-30T23:10:08Z",
+  "last_gmail_check_iso": "2026-05-01T13:07:49Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound JCD02 vendor threads (post-cutoff): 3 (HiTech expedite confirm Cat-D; PNM ME-06503 ack Cat-D; TrueForm lead-time reply Cat-D). Outbound JCD02 RFQs (post-cutoff): 0. Smartsheet notifications from Joby for 530077-004/530484-001/530007-002 (informational only). No extractable prices or status changes.",
+  "last_run_summary": "Inbound threads scanned (post-cutoff): 1 (HiTech Gilbertg PO-4588 expedite update \u2014 production delivery dates for ME06049/B and ME-06232/D, not Joby JCD02 RFQ parts, Cat-D). Outbound Joby JCD02 RFQs (post-cutoff): 0. No extractable prices or status changes.",
   "last_run_changes": 0
 }
