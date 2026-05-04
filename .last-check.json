@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-05-03T21:39:28Z",
+  "last_gmail_check_iso": "2026-05-04T13:35:46Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "Inbound threads scanned (post-cutoff): 1 (POP Mfg / evan@popmfg.us \u2014 replied to EVF-ATP RFQ, mentioned previous Joby printing estimates but cited no part numbers or prices \u2014 Cat-D). Outbound post-cutoff: 3 (JF Precision, TechnoMetal, POP Mfg \u2014 all EVF-ATP fixture project, no Joby JCD02 part numbers). No extractable Joby JCD02 prices or status changes.",
+  "last_run_summary": "1 new inbound thread scanned post-cutoff (Polydyne system notification \u2014 Joby RFQ BTP-26-0016311 due 5/4/26, Beltim 0% complete \u2014 Cat-D, no vendor quotes). 0 outbound RFQs post-cutoff. No extractable JCD02 prices or status changes.",
   "last_run_changes": 0
 }
