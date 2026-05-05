@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-05-05T16:11:14Z",
+  "last_gmail_check_iso": "2026-05-05T23:10:02Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "1 inbound JCD02 reply (HiTech, thread 19dc7f5593a6d9a2, May 5 15:34Z) \u2014 2 status updates (sent->confirmed), 0 extractable prices (quote in attachment), 1 flag added",
-  "last_run_changes": 4
+  "last_run_summary": "0 new Joby JCD02 replies \u2014 all new activity (12 threads scanned) concerns non-JCD02 projects (ME-06xxx, EVF-ATP, 4-30-00053/54, PO logistics)",
+  "last_run_changes": 0
 }
