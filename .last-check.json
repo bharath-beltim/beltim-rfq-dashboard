@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-05-04T20:10:33Z",
+  "last_gmail_check_iso": "2026-05-05T11:30:13Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "10 inbound vendor threads scanned, 8 outbound Beltim RFQ threads scanned \u2014 all non-JCD02 projects (EVF-ATP fixture package, ME-series parts, delivery logistics). Zero JCD02 part numbers seen in any message. No extractable prices or status changes.",
+  "last_run_summary": "18 threads scanned (13 inbound vendor + 15 outbound Beltim) \u2014 all non-JCD02 projects (ME-series, EVF-ATP fixture, PTV2, delivery logistics). Zero JCD02 part numbers seen in any message. No extractable prices or status changes.",
   "last_run_changes": 0
 }
