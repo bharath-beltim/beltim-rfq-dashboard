@@ -1,6 +1,6 @@
 {
-  "last_gmail_check_iso": "2026-05-06T16:14:00Z",
+  "last_gmail_check_iso": "2026-05-06T23:12:32Z",
   "note": "Initial value \u2014 set to Apr 10 to cover the full RFQ window on first run. Updated by the scheduled task after each run.",
-  "last_run_summary": "0 new Joby JCD02 replies \u2014 20 vendor threads scanned (all post-cutoff activity concerns non-JCD02 projects: ME-06xxx, EVF-ATP, PO logistics, PTV2). HiTech quote for 530113-001 and 531296-001 pre-dates cutoff and was already processed.",
+  "last_run_summary": "0 new Joby JCD02 replies \u2014 threads scanned: 16 inbound from known vendor domains, 18 outbound RFQ/quote threads. All post-cutoff activity from vendor domains concerns non-JCD02 projects (ME-06xxx machined parts, EVF-ATP fixtures, PO logistics, packing slips). HiTech quote for 530113-001 and 531296-001 (attachment) pre-dates cutoff and was already noted in prior run. Unknown Joby PNs 551820-001 and 551826-001 appeared in EVF-ATP outbound RFQ to eclipsemf.com (not JCD02 project, not in COMPARE_DATA).",
   "last_run_changes": 0
 }
